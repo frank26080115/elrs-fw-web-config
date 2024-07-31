@@ -1,0 +1,97 @@
+body {
+	background-color: #000;
+	color: #FFF;
+	font-family: Arial, sans-serif;
+	margin: 20px;
+}
+.accordion {
+	width: 100%;
+	margin: auto;
+}
+a {
+	color: yellow;
+}
+a:link {
+	color: yellow;
+}
+a:visited {
+	color: yellow;
+}
+a:hover {
+	color: yellow;
+}
+a:active {
+	color: yellow;
+}
+.radio-group {
+	margin: 20px 0;
+}
+table {
+	width: 100%;
+	table-layout: auto;
+	border-collapse: collapse;
+	margin-bottom: 2em;
+}
+td {
+	padding: 10px;
+	border: 1px solid #ccc;
+}
+td:first-child {
+	white-space: nowrap;
+	width: 1%;
+}
+label.radio-labels {
+	display: inline-block;
+	width: 80%;
+}
+.radio-container {
+	display: flex;
+	align-items: center;
+}
+.radio-container label {
+	flex: 0 0 auto;
+	margin-right: 10px;
+}
+.ui-accordion-header-fs {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+.ui-accordion-header-fs .ui-icon {
+	margin-left: 10px;
+}
+fieldset {
+	border: 1px solid #ccc;
+	padding: 10px;
+	margin-bottom: 20px;
+	border-radius: 5px;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+	position: relative;
+	padding-top: 30px; /* Adjust padding to accommodate legend */
+	margin-bottom: 3em;
+	margin-top: 3em;
+}
+.ui-fieldset-legend {
+	font-weight: bold;
+	padding: 5px 10px;
+	cursor: default;
+	width: calc(100% - 20px); /* Adjust width to fit within fieldset */
+	position: absolute;
+	top: -15px; /* Adjust position to overlap fieldset border */
+	left: 10px;
+	/*background: #333;
+	color: #fff;*/
+	border-radius: 5px;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.ui-textbox {
+	width: 100%;
+	box-sizing: border-box; /* Ensures padding and border are included in the width */
+}
+input[disabled] {
+	background-color: #555; /* Darker gray background */
+	color: #888; /* Gray text */
+	border: 1px solid #777; /* Dark gray border */
+	cursor: not-allowed; /* Change cursor to indicate disabled state */
+	opacity: 0.6; /* Slightly transparent to indicate disabled state */
+}
