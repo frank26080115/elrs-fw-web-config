@@ -1,15 +1,18 @@
 let receiver_list = [];
 let layout_list = {};
 let version_list = [];
+let layout_fetch_queue = [];
+let build_targets = [];
+let build_targets_dict = {};
 
 function fill_receiver_list()
 {
 	$("#hardware_loading").show();
 	$("#hardware_list").hide();
 	$.ajax({
-		url: 'get_hardware.php', // Replace with your API endpoint
+		url: 'get_hardware.php',
 		type: 'GET',
-		dataType: 'json', // The type of data you're expecting back from the server
+		dataType: 'json',
 		success: function(response) {
 			if (response.hasOwnProperty("error")) {
 				console.log("get_hardware error: " + response.error);
@@ -45,13 +48,17 @@ function fill_receiver_list()
 			let table_contents = "<div class='radio-group'><table>\r\n";
 			for (let item_num = 0; item_num < receiver_list.length; item_num++) {
 				let rx = receiver_list[item_num];
-				table_contents += `<tr><td><input type="radio" id="chk_rx_${item_num}" name="chk_rx" value="${item_num}" onchange="chk_rx_onchange(this, ${item_num})" /></td><td><label for="chk_rx_${item_num}">${rx["product_name"]}</label></td></tr>\r\n`;
+				let extra = "";
+				if (isGenericRx(rx)) {
+					extra = "checked ";
+				}
+				table_contents += `<tr><td><input type="radio" id="chk_rx_${item_num}" name="chk_rx" value="${item_num}" onchange="chk_rx_onchange(this, ${item_num})" ${extra}/></td><td><label for="chk_rx_${item_num}">${rx["product_name"]}</label></td></tr>\r\n`;
 			}
 			table_contents += "</table></div>"
 			let tbl_ele = $(table_contents);
-			$("#hardware_loading").hide();
-			$("#hardware_list").empty().append(tbl_ele);
-			$("#hardware_list").show();
+			$("#rx-list-inner").empty().append(tbl_ele);
+			validateRadioGroup("chk_rx");
+			chk_rxhighlevel_onchange(null);
 		},
 		error: function(xhr, status, error) {
 			setTimeout(function() {
@@ -64,9 +71,9 @@ function fill_receiver_list()
 function fill_version_dropdown()
 {
 	$.ajax({
-		url: 'get_gittags.php', // Replace with your API endpoint
+		url: 'get_gittags.php',
 		type: 'GET',
-		dataType: 'json', // The type of data you're expecting back from the server
+		dataType: 'json',
 		success: function(response) {
 			if (response.hasOwnProperty("error")) {
 				console.log("get_gittags error: " + response.error);
@@ -115,7 +122,219 @@ function fill_version_dropdown()
 	});
 }
 
+function get_all_build_targets()
+{
+	$.ajax({
+		url: 'get_buildtargets.php',
+		type: 'GET',
+		dataType: 'json',
+		success: function(response) {
+			build_targets = response["targets"];
+			build_targets.sort();
+			for (let i = 0; i < build_targets.length; i++) {
+				let s = build_targets[i];
+				let j = s.indexOf("_via_");
+				if (j > 0) {
+					s = s.substring(0, j);
+				}
+				if (s.indexOf("_TX_") >= 0 || s.endsWith("_TX")) {
+					continue;
+				}
+				if (Object.values(build_targets_dict).includes(s) == false) {
+					build_targets_dict[i] = s;
+				}
+			}
+			let select = $('<select id="drop_buildtarget" name="drop_buildtarget"></select>');
+			$.each(build_targets_dict, function(key, value) {
+				let option = $('<option></option>').attr('value', key).text(value);
+				select.append(option);
+			});
+			$("#buildtargets-list-inner").empty().append(select);
+			select.selectmenu();
+		},
+		error: function(xhr, status, error) {
+			setTimeout(function() {
+				get_all_build_targets();
+			}, 1000);
+		}
+	});
+}
+
 function fetch_layoutfile(f)
 {
-	
+	if (f != null) {
+		layout_fetch_queue.push(f);
+	}
+	else {
+		if (layout_fetch_queue.length > 0) {
+			f = layout_fetch_queue[0];
+		}
+	}
+	if (layout_list.hasOwnProperty(f)) {
+		return layout_list[f];
+	}
+	$.ajax({
+		url: "get_jsonfile.php?file=" + f, // Replace with your API endpoint
+		type: 'GET',
+		dataType: 'json', // The type of data you're expecting back from the server
+		success: function(response) {
+			layout_list[f] = response;
+			let i = layout_fetch_queue.indexOf(f);
+			if (i >= 0) {
+				layout_fetch_queue.splice(i, 1);
+			}
+		},
+		error: function(xhr, status, error) {
+			setTimeout(function() {
+				fetch_layoutfile(null);
+			}, 1000);
+		}
+	});
+	return null;
+}
+
+let last_build_ver = null;
+let last_build_fw = null;
+let last_build_key = null;
+let last_build_path = null;
+
+function fetch_firmware_build(v, fw)
+{
+	let key = v + "_" + fw;
+	if (last_build_key == key) {
+		$("#build_error").hide();
+		$("#build_busy").hide();
+		$("#build_message").hide();
+		$("#build_done").show();
+		return last_build_path;
+	}
+	$("#build_done").hide();
+
+	last_build_ver = v;
+	last_build_fw = fw;
+
+	$.ajax({
+		url: 'builder.php',
+		type: 'POST',
+		data: JSON.stringify({"action": "build", "version": v, "firmware": fw}),
+		contentType: 'application/json',
+		success: function(response) {
+			if (response.hasOwnProperty("status")) {
+				$("#build_error").hide();
+				$("#build_busy").show();
+				$("#build_busy_inner").text("Build complete, transfering firmware file, please wait...");
+				$("#build_message").hide();
+				let sts = response["status"];
+				if (sts == "done") {
+					try {
+						let fpath = response["file"];
+						if (fpath.length <= 0) {
+							$("#build_message").show();
+							$("#txt_buildmessage").val(response["message"]);
+							return;
+						}
+						let nkey = response["version"] + "_" + response["firmware"];
+						last_build_key = nkey;
+						last_build_path = fpath;
+						get_firmware_binary(fpath);
+					}
+					catch (e) {
+						$("#build_error").show();
+						$("#build_busy").hide();
+						$("#build_message").hide();
+						let s = "Error while parsing build server response: " + e.message;
+						$("#build_error_inner").text(s);
+					}
+				}
+				else if (sts.startsWith("busy")) {
+					$("#build_error").hide();
+					$("#build_busy").show();
+					$("#build_message").hide();
+					$("#build_done").hide();
+					let extra = "";
+					if (response.hasOwnProperty("message")) {
+						extra = "<br />" + response["message"];
+					}
+					if (sts == "busy full") {
+						$("#build_busy_inner").html("Build queue is too full, cannot queue new build. Please wait...");
+					}
+					else if (sts == "busy queued") {
+						$("#build_busy_inner").html("Build request has been queued, please wait..." + extra);
+					}
+					else if (sts == "busy new") {
+						$("#build_busy_inner").html("Build request has just been queued, please wait..." + extra);
+					}
+					else if (sts == "busy started") {
+						$("#build_busy_inner").html("Your build has started, please wait..." + extra);
+					}
+					else {
+						$("#build_busy_inner").html("Builder is busy, please wait..." + extra);
+					}
+					setTimeout(function() {
+						fetch_firmware_build(last_build_ver, last_build_fw);
+					}, 1000);
+				}
+			}
+			else if (response.hasOwnProperty("error")) {
+				let s = "Unexpected error from backend builder: " + response["error"];
+				console.log(s);
+				$("#build_busy").hide();
+				$("#build_message").hide();
+				$("#build_done").hide();
+				$("#build_error").show();
+				$("#build_error_inner").text(s);
+				setTimeout(function() {
+					fetch_firmware_build(last_build_ver, last_build_fw);
+				}, 5000);
+			}
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			let s = "Builder AJAX request error: ";
+			if (textStatus.length > 0) {
+				s += "[" + textStatus + "] ";
+			}
+			s += errorThrown;
+			$("#build_busy").hide();
+			$("#build_message").hide();
+			$("#build_done").hide();
+			$("#build_error").show();
+			$("#build_error_inner").text(s);
+			console.log(s);
+			setTimeout(function() {
+				fetch_firmware_build(last_build_ver, last_build_fw);
+			}, 1000);
+		}
+	});
+	return null;
+}
+
+let last_built_fw_fpath = null;
+let built_fw = null;
+function get_firmware_binary(fpath) {
+	last_built_fw_fpath = fpath;
+	$.ajax({
+		url: fpath,
+		type: 'GET',
+		responseType: 'arraybuffer',
+		success: function(data) {
+			let uint8Array = new Uint8Array(data);
+			if (uint8Array[0] === 0x1F && uint8Array[1] === 0x8B) { // check if compressed
+				let decompressedArray = pako.inflate(uint8Array);
+				let decompressedUint8Array = new Uint8Array(decompressedArray);
+				uint8Array = decompressedUint8Array;
+			}
+			let fw_total_len = uint8Array.length
+			let offset = ELRSOPTS_PRODUCTNAME_SIZE + ELRSOPTS_DEVICENAME_SIZE + ELRSOPTS_OPTIONS_SIZE + ELRSOPTS_HARDWARE_SIZE;
+			let config_start = fw_total_len - offset;
+			built_fw = uint8Array.subarray(0, config_start);
+			$("#build_busy").hide();
+			$("#build_done").show();
+		},
+		error: function(xhr, status, error) {
+			console.error('Error occurred while fetching the .bin file: ', error);
+			setTimeout(function(){
+				get_firmware_binary(last_built_fw_fpath);
+			}, 1000);
+		}
+	});
 }

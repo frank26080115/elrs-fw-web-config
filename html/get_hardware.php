@@ -2,7 +2,7 @@
 include 'utils.php';
 
 $giturl = 'https://github.com/ExpressLRS/targets.git';
-$repos = 'repos';
+$repos = '../private/repos';
 $directory = $repos . DIRECTORY_SEPARATOR . 'targets';
 
 header('Content-Type: application/json');

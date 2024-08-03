@@ -95,3 +95,13 @@ input[disabled] {
 	cursor: not-allowed; /* Change cursor to indicate disabled state */
 	opacity: 0.6; /* Slightly transparent to indicate disabled state */
 }
+.raw-editor {
+	width: 90%;
+	height: 20em;
+	font-family: "Courier New", "Lucida Console", monospace !important;
+}
+.build-message {
+	width: 90%;
+	height: 20em;
+	font-family: "Courier New", "Lucida Console", monospace !important;
+}

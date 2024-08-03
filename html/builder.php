@@ -1,8 +1,4 @@
 <?php
-$url = 'http://localhost:5000/builder';
-// Get the incoming POST data
-$data = json_decode(file_get_contents('php://input'), true);
-
 // Function to check if the Flask server is running
 function isServerRunning($url) {
     $ch = curl_init($url);
@@ -13,6 +9,12 @@ function isServerRunning($url) {
     curl_close($ch);
     return $httpCode === 200;
 }
+
+try
+{
+$url = 'http://localhost:5000/builder';
+// Get the incoming POST data
+$data = json_decode(file_get_contents('php://input'), true);
 
 // Check if the Flask server is running
 if (!isServerRunning($url)) {
@@ -32,14 +34,21 @@ curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 
 // Execute cURL request
 $response = curl_exec($ch);
+curl_close($ch);
 
-// Check for errors
+header('Content-Type: application/json');
+
 if ($response === false) {
-    echo 'Curl error: ' . curl_error($ch);
-} else {
-    echo 'Response from server: ' . $response;
+    $response = json_encode(array("error" => "Internal server cURL/Flask error"));
+}
+if (json_decode($response) === null) {
+    $response = json_encode(array("error" => "Internal server Python/Flask error"));
+}
+echo $response;
+}
+catch (Exception $e) {
+    $response = json_encode(array("error" => "Internal server cURL/Flask exception: " . $e->getMessage()));
+    echo $response;
 }
 
-// Close cURL session
-curl_close($ch);
 ?>
