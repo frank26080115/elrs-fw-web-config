@@ -230,7 +230,7 @@ window.onload = function() {
 		<p><fieldset><legend class="ui-fieldset-legend">Receiver Data-Rate</legend>
 			<div class="radio-group">
 				<table>
-				<tr><td><div class="radio-container"><input type="radio" id="rxdatarate-auto" name="rxdatarate" value="auto" onchange="chk_rxdatarate_onchange(this)" />
+				<tr><td><div class="radio-container"><input type="radio" id="rxdatarate-auto" name="rxdatarate" value="auto" onchange="chk_rxdatarate_onchange(this)" checked />
 				<label for="rxdatarate-auto" class="radio-labels">Auto</label></div>
 				</td><td>Automatically detect transmitter data-rate.<br />
 					<div class="checkbox">
@@ -250,7 +250,7 @@ window.onload = function() {
 				<tr><td><div class="radio-container"><input type="radio" id="bindphrase-phrase" name="bindphrase" value="phrase" onchange="chk_bindphrase_onchange(this)" />
 				<label for="bindphrase-phrase" class="radio-labels">Use Phrase</label></div>
 				</td><td><input type="text" id="txt_bindphrase" name="txt_bindphrase" onchange="txt_bindphrase_onchange()" oninput="txt_bindphrase_onchange()" /></td></tr>
-				<tr><td><div class="radio-container"><input type="radio" id="bindphrase-id" name="bindphrase" value="id" onchange="chk_bindphrase_onchange(this)" />
+				<tr><td><div class="radio-container"><input type="radio" id="bindphrase-id" name="bindphrase" value="id" onchange="chk_bindphrase_onchange(this)" checked />
 				<label for="bindphrase-id" class="radio-labels">Use UID</label></div>
 				</td><td><input type="text" id="txt_bindid" name="txt_bindid" onchange="txt_bindid_onchange()" oninput="txt_bindid_onchange()" /></td></tr>
 				</table>
@@ -262,10 +262,10 @@ window.onload = function() {
 		<p>
 			<div class="radio-group">
 				<table>
-				<tr><td><div class="radio-container"><input type="radio" id="wifimode-ap" name="wifimode" value="ap" checked>
+				<tr><td><div class="radio-container"><input type="radio" id="wifimode-ap" name="wifimode" value="ap" checked />
 				<label for="wifimode-ap" class="radio-labels">Access Point</label></div>
 				</td><td>ELRS will become an access point. Use your phone or computer to directly connect to the Wi-Fi access point.</td></tr>
-				<tr><td><div class="radio-container"><input type="radio" id="wifimode-sta" name="wifimode" value="sta">
+				<tr><td><div class="radio-container"><input type="radio" id="wifimode-sta" name="wifimode" value="sta" />
 				<label for="wifimode-sta" class="radio-labels">Station</label></div>
 				</td><td>
 					ELRS will connect into your home Wi-Fi. Please provide...<br />
@@ -367,6 +367,7 @@ window.onload = function() {
 		</fieldset></p>
 		-->
 		<div id="regulatory_domain"><fieldset><legend class="ui-fieldset-legend">Regulatory Domain</legend>
+			This only applies to sub-GHz radios.<br />
 			<select id="drop_domain" name="drop_domain">
 				<option value='0'>AU915</option>
 				<option value='1'>FCC915</option>

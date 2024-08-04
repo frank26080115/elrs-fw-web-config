@@ -199,7 +199,13 @@ function generateFinalConfig()
 		return;
 	}
 
-	let best_build_target = findClosestStringMatch(rx["firmware"], build_targets);
+	let best_build_target;
+	if (fw_ver == "shrew") {
+		best_build_target = "Unified_ShrewESC_2400_RX_via_UART";
+	}
+	else {
+		best_build_target = findClosestStringMatch(rx["firmware"], build_targets);
+	}
 	let r = fetch_firmware_build(fw_ver, best_build_target);
 	if (r != null) {
 		console.log("got the firmware previously already");

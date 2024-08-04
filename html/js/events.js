@@ -106,6 +106,7 @@ function chk_rxhighlevel_onchange(r)
 {
 	if ($('#rxhighlevel-list').is(':checked')) {
 		$('#rx-list').show();
+		chk_rx_onchange();
 	}
 	else {
 		$('#rx-list').hide();
@@ -120,6 +121,8 @@ function chk_rxhighlevel_onchange(r)
 		$('#pwmpinset-nano3').prop('disabled', true);
 		$('#pwmpinset-nano2').prop('disabled', true);
 		$('#rxdatarate-fixed').prop('disabled', false);
+		make_data_rate_dropdown(data_rates_2400);
+		$("#regulatory_domain").hide();
 	}
 	else {
 		$('#drop_shrewvariant').prop('disabled', true);
