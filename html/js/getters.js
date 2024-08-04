@@ -116,6 +116,8 @@ function fill_version_dropdown()
 			}
 			select_contents += "</select>";
 			$("#version_dropdown").empty().append($(select_contents));
+			//$("#drop_fwversion").selectmenu();
+			chk_fwver_onchange();
 		},
 		error: function(xhr, status, error) {
 			setTimeout(function() {
@@ -153,7 +155,7 @@ function get_all_build_targets()
 				select.append(option);
 			});
 			$("#buildtargets-list-inner").empty().append(select);
-			select.selectmenu();
+			//select.selectmenu();
 		},
 		error: function(xhr, status, error) {
 			setTimeout(function() {

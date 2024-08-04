@@ -99,10 +99,11 @@ function make_data_rate_dropdown(rate_collection)
 			select.append($('<option></option>').attr('value', r).text(data_rate_names[r]));
 		});
 		$('#div_datarate').append(select);
-		select.selectmenu();
+		//select.selectmenu();
 		data_rates_last = rate_collection;
 		if (old_val >= 0) {
 			$('#drop_datarate').val(old_val);
 		}
 	}
+	chk_rxdatarate_onchange();
 }

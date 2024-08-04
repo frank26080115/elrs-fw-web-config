@@ -67,6 +67,7 @@ function chk_fwver_onchange(r)
 	if ($('#fwver-combatrobot').is(':checked')) {
 		$('#rxdatarate-fixed').prop('disabled', false);
 		$('#chk_preventbinding').prop('disabled', false);
+		chk_rxdatarate_onchange();
 	}
 	else {
 		if ($('#rxdatarate-fixed').is(':checked')) {

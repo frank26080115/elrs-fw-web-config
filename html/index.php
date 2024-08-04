@@ -60,12 +60,15 @@ window.onload = function() {
 	$("input[type=text]").addClass("ui-widget ui-widget-content ui-corner-all ui-textbox");
 	$("input[type=number]").spinner();
 	$("input[type=button]").button();
-	$("select").selectmenu();
+
+	//$("#drop_shrewvariant").selectmenu();
 
 	$("#uploaded-filename").hide();
 
 	fill_receiver_list();
 	fill_version_dropdown();
+
+	make_data_rate_dropdown(data_rates_2400);
 
 	chk_fwver_onchange(null);
 	chk_rxhighlevel_onchange(null);
@@ -252,7 +255,7 @@ window.onload = function() {
 				</td><td><input type="text" id="txt_bindphrase" name="txt_bindphrase" onchange="txt_bindphrase_onchange()" oninput="txt_bindphrase_onchange()" /></td></tr>
 				<tr><td><div class="radio-container"><input type="radio" id="bindphrase-id" name="bindphrase" value="id" onchange="chk_bindphrase_onchange(this)" checked />
 				<label for="bindphrase-id" class="radio-labels">Use UID</label></div>
-				</td><td><input type="text" id="txt_bindid" name="txt_bindid" onchange="txt_bindid_onchange()" oninput="txt_bindid_onchange()" /></td></tr>
+				</td><td><input type="text" id="txt_bindid" name="txt_bindid" value="0,0,0,0,0,0" onchange="txt_bindid_onchange()" oninput="txt_bindid_onchange()" /></td></tr>
 				</table>
 			</div>
 		</p>
