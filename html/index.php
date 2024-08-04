@@ -81,6 +81,18 @@ window.onload = function() {
 	$("#build_done").hide();
 	$("#build_busy").show();
 	$("#build_busy_inner").text("Initializing and making a build request, please wait...");
+
+	if (typeof(Storage) !== "undefined") {
+		if (localStorage.getItem('bindphrase') !== null) {
+			let s = localStorage.getItem('bindphrase');
+			if (s.trim().length > 0) {
+				$('#bindphrase-phrase').prop('checked', true);
+				$("#txt_bindphrase").val(s);
+				txt_bindphrase_onchange();
+			}
+		}
+	}
+	chk_bindphrase_onchange();
 };
 
 </script>
@@ -116,7 +128,7 @@ window.onload = function() {
 	<h3>Load Prev Config</h3>
 	<div>
 		<p>
-			If you already have a firmware file, you may load it here, and the configuration will be extracted from it.
+			If you already have a firmware file, you may load it here, and the configuration will be extracted from it. This is completely optional.
 		</p>
 		<p><fieldset><form id="file-form"><input type="file" id="file-input" accept=".bin" onchange="handleFile(event)" style="file-uploader" /></form></fieldset></p>
 		<div id="uploaded-filename"></div>
@@ -352,6 +364,7 @@ window.onload = function() {
 		</p>
 		<p><b>Important Note: </b> If you have selected the combat robotics firmware, then all PWM pins will be initialized with a no-pulse failsafe mode for maximum safety out-of-the-box. The combat robotics specific firmware also features servo stretching, but it will not be enabled by default.</p>
 		<p>Appologies, it is not possible to modify the fine details about each individual PWM pins. That section of configuration data is stored in emulated-EEPROM and is not a part of the firmware at all.</p>
+		<p><b>Important Note: </b> This means if you are not using the combat robotics firmware, please double check your PWM failsafe settings afterwards. They may have defaulted to an airplane-friendly failsafe setting.</p>
 	</div>
 	<h3>Other</h3>
 	<div>
@@ -370,7 +383,7 @@ window.onload = function() {
 		</fieldset></p>
 		-->
 		<div id="regulatory_domain"><fieldset><legend class="ui-fieldset-legend">Regulatory Domain</legend>
-			This only applies to sub-GHz radios.<br />
+			This only applies to sub-GHz radios. 2.4 GHz radios do not care about this option.<br />
 			<select id="drop_domain" name="drop_domain">
 				<option value='0'>AU915</option>
 				<option value='1'>FCC915</option>

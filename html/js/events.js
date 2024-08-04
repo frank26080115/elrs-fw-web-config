@@ -5,15 +5,18 @@ function chk_rx_onchange(r, i)
 		let rx = receiver_list[x];
 		if (rx["firmware"].includes("2400")) {
 			make_data_rate_dropdown(data_rates_2400);
-			$("#regulatory_domain").hide();
+			//$("#regulatory_domain").hide();
+			$('#drop_domain').prop('disabled', true);
 		}
 		else if (rx["firmware"].includes("900")) {
 			make_data_rate_dropdown(data_rates_900);
-			$("#regulatory_domain").show();
+			//$("#regulatory_domain").show();
+			$('#drop_domain').prop('disabled', false);
 		}
 		else if (rx["firmware"].includes("1121")) {
 			make_data_rate_dropdown(data_rates_LR1121);
-			$("#regulatory_domain").hide();
+			//$("#regulatory_domain").show();
+			$('#drop_domain').prop('disabled', false);
 		}
 		fetch_layoutfile(rx["layout_file"]);
 		$("#drop_buildtargets").val(findClosestStringMatchDict(rx["firmware"], build_targets_dict));
@@ -123,7 +126,8 @@ function chk_rxhighlevel_onchange(r)
 		$('#pwmpinset-nano2').prop('disabled', true);
 		$('#rxdatarate-fixed').prop('disabled', false);
 		make_data_rate_dropdown(data_rates_2400);
-		$("#regulatory_domain").hide();
+		//$("#regulatory_domain").hide();
+		$('#drop_domain').prop('disabled', true);
 	}
 	else {
 		$('#drop_shrewvariant').prop('disabled', true);
@@ -141,6 +145,10 @@ function chk_rxhighlevel_onchange(r)
 	}
 	else {
 		$('#buildtargets-list').hide();
+	}
+	if ($('#rxhighlevel-nano').is(':checked')) {
+		//$("#regulatory_domain").hide();
+		$('#drop_domain').prop('disabled', true);
 	}
 }
 
@@ -172,6 +180,11 @@ function accordion_onactivate(evt, ui)
 
 	if (oldHeaderId !== 'No ID') {
 		console.log("Closed section ID: " + oldHeaderId);
+		if (oldHeaderId == "sect_save") {
+			$("#build_done").hide();
+			$("#build_busy").show();
+			$("#build_busy_inner").text("Initializing and making a build request, please wait...");
+		}
 	} else {
 		console.log("Closed section has no ID");
 	}

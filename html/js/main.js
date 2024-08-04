@@ -59,6 +59,9 @@ function generateFinalConfig()
 	options["flash-discriminator"] = getRandomInt32();
 	if ($('#bindphrase-phrase').is(':checked')) {
 		options["uid"] = uidBytesFromText($('#txt_bindphrase').val());
+		if (typeof(Storage) !== "undefined") {
+			localStorage.setItem("bindphrase", $('#txt_bindphrase').val());
+		}
 	}
 	else {
 		options["uid"] = uidBytesFromText($('#txt_bindid').val());
