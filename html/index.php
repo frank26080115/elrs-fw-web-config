@@ -39,7 +39,7 @@ window.onload = function() {
 	}
 
 	fetch_layoutfile("Generic 2400.json");
-	//fetch_layoutfile("Shrew.json");
+	fetch_layoutfile("Shrew.json");
 	get_all_build_targets();
 
 	$("#accordion").accordion({
@@ -169,8 +169,8 @@ window.onload = function() {
 					<label for="rxhighlevel-shrew" class="radio-labels">Shrew ESC</label></div>
 					</td><td>Shrew ESC, choose between:<br />
 						<select id="drop_shrewvariant" name="drop_shrewvariant">
-							<option value="1">3.7A - DRV</option>
-							<option value="2">21A - DRV</option>
+							<option value="1">3.7A - DRV8231</option>
+							<option value="2">21A - DRV8244</option>
 						</select>
 					</td></tr>
 					<tr><td><div class="radio-container"><input type="radio" id="rxhighlevel-retain" name="rxhighlevel" value="retain" onchange="chk_rxhighlevel_onchange(this)" disabled />

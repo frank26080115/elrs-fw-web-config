@@ -1,4 +1,6 @@
 from flask import Flask, request, jsonify
+import logging
+from logging.handlers import RotatingFileHandler
 import threading, queue
 import subprocess, os
 import datetime
@@ -22,11 +24,24 @@ Only one build is done at a time no matter how many clients are requesting build
 
 home_dir = os.getcwd()
 app = Flask(__name__)
+
+log_file = '/var/www/private/logs/builder.log'
+log_dir = os.path.dirname(log_file)
+os.makedirs(log_dir, exist_ok=True)
+log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+log_level = logging.INFO
+handler = RotatingFileHandler(log_file, maxBytes=10000, backupCount=3)
+handler.setLevel(log_level)
+handler.setFormatter(logging.Formatter(log_format))
+app.logger.addHandler(handler)
+app.logger.setLevel(log_level)
+
 build_queue = queue.Queue()
 build_tasks = {}
 current_task = None
 
 def build_expresslrs(env_target, dirpath = ".", clean = True):
+    app.logger.info(f"Starting build \"{env_target}\" dir \"{dirpath}\"")
     env = os.environ.copy()
     env["PYTHONUNBUFFERED"] = "1"
     if clean:
@@ -34,7 +49,8 @@ def build_expresslrs(env_target, dirpath = ".", clean = True):
             command = [pio_path, "run", "--target", "clean", "-e", env_target, "-d", os.path.abspath(dirpath)]
             process = subprocess.Popen(command, cwd=os.path.abspath(dirpath), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=env)
             stdout_output, stderr_output = process.communicate(timeout=60*10)
-        except:
+        except Exception as ex:
+            app.logger.error("Build clean caused exception: " + str(e))
             pass
     command = [pio_path, "run", "-e", env_target, "-d", os.path.abspath(dirpath)]
     process = None
@@ -47,9 +63,13 @@ def build_expresslrs(env_target, dirpath = ".", clean = True):
         stdout_output, stderr_output = process.communicate(timeout=60*10)
         if process.returncode == 0:
             success = True
-            text += "Build Success\n"
+            s = "Build Success\n"
+            text += s
+            app.logger.info(s)
         else:
-            text += f"Build Failed, code {process.returncode}\n"
+            s = f"Build Failed, code {process.returncode}\n"
+            text += s
+            app.logger.error(s)
         text += stdout_output + '\n' + stderr_output
     except subprocess.TimeoutExpired as e:
         if process is not None:
@@ -58,13 +78,17 @@ def build_expresslrs(env_target, dirpath = ".", clean = True):
         else:
             stdout_output = e.stdout
             stderr_output = e.stderr
-        text += "ERROR: PIO build process timed out\n" + stdout_output + '\n' + stderr_output
+        s = "ERROR: PIO build process timed out\n" + stdout_output + '\n' + stderr_output
+        text += s
+        app.logger.error(s)
     except Exception as ex:
         text += "ERROR: exception occured during PIO build\n" + str(ex) + "\n"
     fwpath = os.path.abspath(os.path.join(dirpath, f".pio/build/{env_target}/firmware.bin"))
     if success and os.path.exists(fwpath) == False:
-        text += f"ERROR: \"{fwpath}\" is missing\n"
+        s = f"ERROR: \"{fwpath}\" is missing\n"
+        text += s
         fwpath = None
+        app.logger.error(s)
     return success, text, fwpath
 
 def git_refresh_gethash(ver):
@@ -74,7 +98,7 @@ def git_refresh_gethash(ver):
     if ver is not None and ver == "shrew":
         git_url = "https://github.com/frank26080115/ExpressLRS.git"
         repo_name = "shrew"
-        checkout = "-b shrew"
+        checkout = "shrew"
     if ver is not None and ver == "targets":
         git_url = "https://github.com/ExpressLRS/targets.git"
         repo_name = "targets"
@@ -87,8 +111,9 @@ def git_refresh_gethash(ver):
             os.makedirs(repo_fullpath, mode=0o777)
             subprocess.run(["git", "clone", git_url, repo_fullpath], cwd=repo_dir, capture_output=True, text=True, check=True)
         except subprocess.CalledProcessError as e:
-            print(f"Command '{e.cmd}' returned non-zero exit status {e.returncode}.")
-            print(f"Command output: {e.output}")
+            s = f"Command '{e.cmd}' returned non-zero exit status {e.returncode}. Command output: {e.output}"
+            print(s)
+            app.logger.error(s)
             return None
         cmd = "git config --global --add safe.directory {repo_fullpath}"
         cmd = cmd.split(' ')
@@ -102,20 +127,31 @@ def git_refresh_gethash(ver):
     if time_difference.days >= 1:
         os.utime(repo_path, None)
         #os.chdir(repo_path)
-        subprocess.run(["git", "pull"], cwd=repo_fullpath, capture_output=True, text=True, check=True)
+        try:
+            subprocess.run(["git", "pull"], cwd=repo_fullpath, capture_output=True, text=True, check=True)
+        except subprocess.CalledProcessError as e:
+            s = f"Command '{e.cmd}' returned non-zero exit status {e.returncode}. Command output: {e.output}"
+            print(s)
+            app.logger.error(s)
 
     if checkout is not None:
         cmd = ["git", "checkout"]
         cmd.extend(checkout.split(' '))
-        subprocess.run(cmd, cwd=repo_fullpath, capture_output=True, text=True, check=True)
+        try:
+            subprocess.run(cmd, cwd=repo_fullpath, capture_output=True, text=True, check=True)
+        except subprocess.CalledProcessError as e:
+            s = f"Command '{e.cmd}' returned non-zero exit status {e.returncode}. Command output: {e.output}"
+            print(s)
+            app.logger.error(s)
 
-    txt = None
+    txt = ver
     try:
-        txt = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo_fullpath, capture_output=True, text=True, check=True)
-        txt = txt.stdout.strip()
+        p = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo_fullpath, capture_output=True, text=True, check=True)
+        txt = p.stdout.strip()
     except subprocess.CalledProcessError as e:
-        print(f"Command '{e.cmd}' returned non-zero exit status {e.returncode}.")
-        print(f"Command output: {e.output}")
+        s = f"Command '{e.cmd}' returned non-zero exit status {e.returncode}. Command output: {e.output}"
+        print(s)
+        app.logger.error(s)
     return txt
 
 class BuildTask(object):
@@ -155,12 +191,16 @@ class BuildTask(object):
                 shutil.move(fwpath, saved_fw_path)
                 self.file_path = saved_fw_path
         except Exception as ex:
-            self.message += f"\nTask Error Exception: {str(ex)}\n"
+            s = f"Task Error Exception: {str(ex)}"
+            self.message += "\n" + s + "\n"
+            app.logger.error(s)
 
         try:
             start_next_task(poke = False)
         except Exception as ex:
-            self.message += f"\nTask Next Start Error Exception: {str(ex)}\n"
+            s = f"Task Next Start Error Exception: {str(ex)}"
+            self.message += f"\n{s}\n"
+            app.logger.error(s)
 
         while "\n\n" in self.message:
             self.message = self.message.replace("\n\n", "\n")
@@ -300,9 +340,13 @@ def handle_json():
                     start_next_task(poke = True)
                 response = {"status": "ok"}
                 return jsonify(response), 200
+            elif data["action"] == "report":
+                response = {"report": get_busy_message()}
+                return jsonify(response), 200
             elif data["action"] == "quit":
                 os._exit(0)
         except Exception as ex:
+            app.logger.error("handle_json exception: " + str(ex))
             response = {"error": "Python exception: " + str(ex)}
             return jsonify(response), 200
     else:
@@ -329,6 +373,7 @@ def monitoring_task():
         if last_activity_time is not None and build_queue.empty() and all(obj.is_done for obj in build_tasks):
             time_diff = now - last_activity_time
             if time_diff.total_seconds() > 60 * 10:
+                app.logger.info("Server Suicide")
                 os.kill(os.getpid(), signal.SIGINT)
         time.sleep(60)
 
@@ -337,4 +382,5 @@ if __name__ == '__main__':
     home_dir = os.getcwd()
     monitoring_thread = threading.Thread(target=monitoring_task)
     monitoring_thread.start()
+    app.logger.info("Server Launched")
     app.run(host='0.0.0.0', port=5000)

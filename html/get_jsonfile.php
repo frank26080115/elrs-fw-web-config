@@ -3,19 +3,21 @@
 $param = urldecode($_GET['file']);
 
 // Specify the directories to search
-$dirs = ['../private/repos/targets', '../private/repos/ExpressLRS/hardware', '../private/repos/shrew/hardware'];
+$dirs = ['/var/www/private/repos/targets', '/var/www/private/repos/ExpressLRS/src/hardware', '/var/www/private/repos/shrew/src/hardware'];
 
 // Recursive function to search for the JSON file
 function searchJsonFile($dirs, $param) {
-    foreach ($dirs as $dir) {
-        $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
-        foreach ($iterator as $file) {
-            if ($file->isFile() && $file->getFilename() == $param) {
-                return $file->getPathname();
-            }
-        }
-    }
-    return null;
+	foreach ($dirs as $dir) {
+		if (is_dir($dir)) {
+			$iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
+			foreach ($iterator as $file) {
+				if ($file->isFile() && $file->getFilename() == $param) {
+					return $file->getPathname();
+				}
+			}
+		}
+	}
+	return null;
 }
 
 // Search for the JSON file

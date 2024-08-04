@@ -375,12 +375,13 @@ function concatenateUint8Arrays(array1, array2) {
 }
 
 function validateRadioGroup(name) {
-    var isChecked = $("input[name='" + name + "']:checked").length > 0;
-    if (!isChecked) {
-        checkFirstRadioButton(name);
-        return false;
-    }
-    return true;
+	var isChecked = $("input[name='" + name + "']:checked").length > 0;
+	if (!isChecked) {
+		console.log("radio group \"" + name + "\" has none checked");
+		checkFirstRadioButton(name);
+		return false;
+	}
+	return true;
 }
 
 function checkFirstRadioButton(name) {
@@ -403,7 +404,7 @@ function isGenericRx(rx) {
 	if (product_name.includes("esp82") == false) {
 		return false;
 	}
-	if (product_name.includes("2.4") == false || product_name.includes("2400") ) {
+	if (product_name.includes("2.4") == false && product_name.includes("2400") == false) {
 		return false;
 	}
 	if (product_name.includes("rx") == false) {
@@ -413,6 +414,7 @@ function isGenericRx(rx) {
 	catch (e) {
 		return false;
 	}
+	return true;
 }
 
 function getDateTimeTag() {

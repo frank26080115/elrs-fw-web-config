@@ -100,6 +100,9 @@ function generateFinalConfig()
 		if (rx_highlevel == "shrew") {
 			options["shrew"] = $("#drop_shrewvariant").val();
 		}
+		else {
+			options["shrew"] = 0;
+		}
 	}
 	$("#txt_rawconfig").val(prettifyJSON(options));
 

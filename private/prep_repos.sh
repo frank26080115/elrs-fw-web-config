@@ -5,9 +5,9 @@ sudo -u www-data git clone https://github.com/ExpressLRS/ExpressLRS.git /var/www
 sudo -u www-data git clone https://github.com/frank26080115/ExpressLRS.git /var/www/private/repos/shrew
 sudo -u www-data git clone https://github.com/ExpressLRS/targets.git /var/www/private/repos/targets
 cd /var/www/private/repos/ExpressLRS
-sudo -u www-data git config --global --add safe.directory /var/www/private/repos/ExpressLRS
+sudo git config --global --add safe.directory /var/www/private/repos/ExpressLRS
 cd /var/www/private/repos/shrew
-sudo -u www-data git config --global --add safe.directory /var/www/private/repos/shrew
-sudo -u www-data git checkout -b shrew
+sudo git config --global --add safe.directory /var/www/private/repos/shrew
+sudo -u www-data git checkout shrew
 cd /var/www/private/repos/targets
-sudo -u www-data git config --global --add safe.directory /var/www/private/repos/targets
+sudo git config --global --add safe.directory /var/www/private/repos/targets

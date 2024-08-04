@@ -45,12 +45,15 @@ function fill_receiver_list()
 					}
 				}
 			}
+			let has_default = false;
 			let table_contents = "<div class='radio-group'><table>\r\n";
 			for (let item_num = 0; item_num < receiver_list.length; item_num++) {
 				let rx = receiver_list[item_num];
 				let extra = "";
-				if (isGenericRx(rx)) {
+				if (isGenericRx(rx) && has_default == false) {
 					extra = "checked ";
+					console.log("default rx found: " + rx["product_name"]);
+					has_default = true;
 				}
 				table_contents += `<tr><td><input type="radio" id="chk_rx_${item_num}" name="chk_rx" value="${item_num}" onchange="chk_rx_onchange(this, ${item_num})" ${extra}/></td><td><label for="chk_rx_${item_num}">${rx["product_name"]}</label></td></tr>\r\n`;
 			}
@@ -283,9 +286,6 @@ function fetch_firmware_build(v, fw)
 				$("#build_done").hide();
 				$("#build_error").show();
 				$("#build_error_inner").text(s);
-				setTimeout(function() {
-					fetch_firmware_build(last_build_ver, last_build_fw);
-				}, 5000);
 			}
 		},
 		error: function(jqXHR, textStatus, errorThrown) {
@@ -300,9 +300,6 @@ function fetch_firmware_build(v, fw)
 			$("#build_error").show();
 			$("#build_error_inner").text(s);
 			console.log(s);
-			setTimeout(function() {
-				fetch_firmware_build(last_build_ver, last_build_fw);
-			}, 1000);
 		}
 	});
 	return null;
