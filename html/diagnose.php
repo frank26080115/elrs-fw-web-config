@@ -1,4 +1,6 @@
 <?php
+$start_time = microtime(true);
+
 include 'utils.php';
 ?>
 
@@ -8,6 +10,13 @@ include 'utils.php';
     <title>Server Info</title>
 </head>
 <body>
+<fieldset><legend>Current Server Time</legend>
+<pre><?php
+$current_time = date('Y-m-d H:i:s');
+echo "Current server time: " . $current_time;
+?>
+</pre>
+</fieldset>
 <fieldset><legend>Python Flask Backend</legend>
 <pre><?php
 $url = 'http://localhost:5000/builder';
@@ -119,6 +128,10 @@ if (file_exists($logFile)) {
 </fieldset>
 <fieldset><legend>Server Process List</legend>
 	<pre><?php
+echo 'exec whoami: ' . exec('whoami') . "\r\n";
+echo 'posix uid: ' . posix_getpwuid(posix_geteuid())['name'];
+?></pre>
+	<pre><?php
 		// Execute the 'ps aux' command and store the output
 		$output = shell_exec('ps aux');
 		// Display the output
@@ -162,7 +175,14 @@ if (file_exists($logFile)) {
 		?>
 	</pre>
 </fieldset>
-<fieldset><legend>Directory File List</legend>
+<fieldset><legend>Server Network Usage</legend>
+	<pre><?php
+		$output = shell_exec('vnstat 2>&1');
+		echo htmlspecialchars($output);
+		?>
+	</pre>
+</fieldset>
+<fieldset><legend>FW Directory File List</legend>
 	<pre><?php
 		// Specify the directory you want to list
 		$directory = 'fw'; // Adjust the path as needed
@@ -177,6 +197,27 @@ if (file_exists($logFile)) {
 			echo "Directory not found.";
 		}
 		?>
+	</pre>
+</fieldset>
+<fieldset><legend>PlatformIO</legend>
+	<pre><?php
+		$output = shell_exec('/var/www/private/piovenv/piovenv/bin/pio --version 2>&1');
+		echo $output;
+		echo "\r\n";
+		$output = shell_exec('/var/www/private/piovenv/piovenv/bin/pio pkg list --global 2>&1');
+		echo $output;
+		$output = shell_exec('/var/www/private/piovenv/piovenv/bin/pio system info 2>&1');
+		echo "\r\n";
+		echo $output;
+		?></pre>
+</fieldset>
+<fieldset><legend>Page Render Time</legend>
+	<pre><?php
+		$end_time = microtime(true);
+		$execution_time = $end_time - $start_time;
+		$formatted_execution_time = number_format($execution_time, 3);
+		echo "Execution time: " . $formatted_execution_time . " seconds";
+	?>
 	</pre>
 </fieldset>
 </body>
