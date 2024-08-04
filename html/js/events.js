@@ -140,12 +140,6 @@ function chk_rxhighlevel_onchange(r)
 		$('#pwmpinset-nano3').prop('disabled', false);
 		$('#pwmpinset-nano2').prop('disabled', false);
 	}
-	if ($('#rxhighlevel-retain').is(':checked') || $('#rxhighlevel-custom').is(':checked')) {
-		$('#buildtargets-list').show();
-	}
-	else {
-		$('#buildtargets-list').hide();
-	}
 	if ($('#rxhighlevel-nano').is(':checked')) {
 		//$("#regulatory_domain").hide();
 		$('#drop_domain').prop('disabled', true);

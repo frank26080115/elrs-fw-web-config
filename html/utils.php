@@ -55,4 +55,20 @@ function binaryFileToHex($filePath) {
 	return $hexString;
 }
 
+// Function to check if a file path is within the public HTML folder
+function isWithinPublicHtml($filePath) {
+	$publicHtmlFolder = "/var/www/html";
+
+	// Get the absolute paths
+	$absoluteFilePath = realpath($filePath);
+	$absolutePublicHtmlFolder = realpath($publicHtmlFolder);
+
+	// Check if the file path starts with the public HTML folder path
+	if ($absoluteFilePath && $absolutePublicHtmlFolder && strpos($absoluteFilePath, $absolutePublicHtmlFolder) === 0) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
 ?>

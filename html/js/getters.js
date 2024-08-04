@@ -319,7 +319,6 @@ function get_firmware_binary(fpath) {
 		success: function(data) {
 			if (data.hasOwnProperty("encoded_str")) {
 				var uint8Array = hexToUint8Array(data["encoded_str"]);
-				console.log("uint8Array length: " + uint8Array.length);
 				if (uint8Array[0] === 0x1F && uint8Array[1] === 0x8B) { // check if compressed
 					let decompressedArray = pako.inflate(uint8Array);
 					let decompressedUint8Array = new Uint8Array(decompressedArray);
