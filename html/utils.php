@@ -45,4 +45,14 @@ function tail($file, $lines) {
 	return $buffer;
 }
 
+function binaryFileToHex($filePath) {
+	// Read the binary file content
+	$binaryContent = file_get_contents($filePath);
+
+	// Convert the binary content to a hexadecimal string
+	$hexString = bin2hex($binaryContent);
+
+	return $hexString;
+}
+
 ?>

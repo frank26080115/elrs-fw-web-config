@@ -244,7 +244,6 @@ function generateBinaryFromTextboxes()
 	}
 	$("#build_error").hide();
 	let ua = concatenateUint8Arrays(u1, u2);
-	ua = concatenateUint8Arrays(ua, u2);
 	ua = concatenateUint8Arrays(ua, u3);
 	ua = concatenateUint8Arrays(ua, u4);
 	return ua;

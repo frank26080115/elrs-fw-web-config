@@ -431,3 +431,20 @@ function getDateTimeTag() {
 
 	return timestamp;
 }
+
+function hexToUint8Array(hexString) {
+	// Ensure the hex string has an even length
+	if (hexString.length % 2 !== 0) {
+		throw new Error('Invalid hexadecimal string');
+	}
+
+	// Create a Uint8Array with half the length of the hex string
+	const byteArray = new Uint8Array(hexString.length / 2);
+
+	// Convert each pair of hex characters to a byte
+	for (let i = 0; i < hexString.length; i += 2) {
+		byteArray[i / 2] = parseInt(hexString.substr(i, 2), 16);
+	}
+
+	return byteArray;
+}

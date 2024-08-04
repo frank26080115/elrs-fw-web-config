@@ -86,7 +86,7 @@ if (file_exists($logFile)) {
 		if (file_exists($logFile)) {
 			echo htmlspecialchars(tail($logFile, $linesToShow));
 		} else {
-			echo "Log file not found. Try this: sudo tail -f /var/log/apache2/error.log";
+			echo "Log file not found. Try this: sudo tail -f " . $logFile;
 		}
 		?>
 	</pre>
@@ -110,6 +110,8 @@ if (file_exists($logFile)) {
 </fieldset>
 <fieldset><legend>PHP Error Log Messages</legend>
 	<pre><?php
+		//phpinfo();
+		//echo "\r\n";
 		// Get the path to the PHP error log file
 		$logFile = ini_get('error_log');
 		echo "Log file location: " . $logFile;

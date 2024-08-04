@@ -241,6 +241,7 @@ function fetch_firmware_build(v, fw)
 						let nkey = response["version"] + "_" + response["firmware"];
 						last_build_key = nkey;
 						last_build_path = fpath;
+						console.log("fw file path from server: " + fpath);
 						get_firmware_binary(fpath);
 					}
 					catch (e) {
@@ -312,22 +313,37 @@ let built_fw = null;
 function get_firmware_binary(fpath) {
 	last_built_fw_fpath = fpath;
 	$.ajax({
-		url: fpath,
+		url: "get_fileencoded.php?file=" + fpath,
 		type: 'GET',
-		responseType: 'arraybuffer',
+		contentType: 'application/json',
 		success: function(data) {
-			let uint8Array = new Uint8Array(data);
-			if (uint8Array[0] === 0x1F && uint8Array[1] === 0x8B) { // check if compressed
-				let decompressedArray = pako.inflate(uint8Array);
-				let decompressedUint8Array = new Uint8Array(decompressedArray);
-				uint8Array = decompressedUint8Array;
+			if (data.hasOwnProperty("encoded_str")) {
+				var uint8Array = hexToUint8Array(data["encoded_str"]);
+				console.log("uint8Array length: " + uint8Array.length);
+				if (uint8Array[0] === 0x1F && uint8Array[1] === 0x8B) { // check if compressed
+					let decompressedArray = pako.inflate(uint8Array);
+					let decompressedUint8Array = new Uint8Array(decompressedArray);
+					uint8Array = decompressedUint8Array;
+				}
+				let fw_total_len = uint8Array.length;
+				let offset = ELRSOPTS_PRODUCTNAME_SIZE + ELRSOPTS_DEVICENAME_SIZE + ELRSOPTS_OPTIONS_SIZE + ELRSOPTS_HARDWARE_SIZE;
+				let config_start = fw_total_len - offset;
+				if (config_start > 0) {
+					built_fw = uint8Array.subarray(0, config_start);
+					$("#build_busy").hide();
+					$("#build_done").show();
+				}
+				else {
+					let s = "ERROR: returned firmware file length is wrong: " + uint8Array.length;
+					$("#build_error").show();
+					$("#build_error_inner").text(s);
+				}
 			}
-			let fw_total_len = uint8Array.length
-			let offset = ELRSOPTS_PRODUCTNAME_SIZE + ELRSOPTS_DEVICENAME_SIZE + ELRSOPTS_OPTIONS_SIZE + ELRSOPTS_HARDWARE_SIZE;
-			let config_start = fw_total_len - offset;
-			built_fw = uint8Array.subarray(0, config_start);
-			$("#build_busy").hide();
-			$("#build_done").show();
+			else {
+				let s = "ERROR: server did not reply back with base64 data";
+				$("#build_error").show();
+				$("#build_error_inner").text(s);
+			}
 		},
 		error: function(xhr, status, error) {
 			console.error('Error occurred while fetching the .bin file: ', error);
