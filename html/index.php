@@ -13,6 +13,8 @@
 
 <script src="https://unpkg.com/esptool-js/bundle.js" type="module" onerror="handleLoadError()"></script>
 
+<link rel="icon" type="image/x-icon" href="/imgs/favicon.ico">
+
 <link rel="stylesheet" href="css/style.css" onerror="handleLoadError()">
 <script src="js/main.js" onerror="handleLoadError()"></script>
 <script src="js/utils.js" onerror="handleLoadError()"></script>
@@ -21,6 +23,15 @@
 <script src="js/events.js" onerror="handleLoadError()"></script>
 <script src="js/fwbin.js" onerror="handleLoadError()"></script>
 <script src="js/shrew.js" onerror="handleLoadError()"></script>
+
+<meta property="og:title" content="ELRS Firmware Configuration Tool" />
+<meta property="og:description" content="Build and preconfigure a customized ELRS firmware" />
+<meta property="og:image" content="https://expresslrsconfig.eleccelerator.com/imgs/logo.png" />
+<meta property="og:url" content="https://expresslrsconfig.eleccelerator.com/" />
+<meta name="twitter:title" content="ELRS Firmware Configuration Tool" />
+<meta name="twitter:description" content="Build and preconfigure a customized ELRS firmware" />
+<meta name="twitter:image" content="https://expresslrsconfig.eleccelerator.com/imgs/logo.png" />
+
 <script>
 let loading_error = false;
 function handleLoadError() {

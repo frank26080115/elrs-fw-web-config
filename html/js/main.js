@@ -30,8 +30,18 @@ function generateFinalConfig()
 	}
 
 	if (rx_highlevel == "retain") {
-		$("#txt_rawproductname").val(provided_productname);
-		$("#txt_rawdevicename").val(provided_devicename);
+		if (provided_data.hasOwnProperty("product_name")) {
+			$("#txt_rawproductname").val(provided_data["product_name"]);
+		}
+		else if (rx != null) {
+			$("#txt_rawproductname").val(rx["product_name"]);
+		}
+		if (provided_data.hasOwnProperty("device_name")) {
+			$("#txt_rawdevicename").val(provided_data["device_name"]);
+		}
+		else if (rx != null) {
+			$("#txt_rawdevicename").val(rx["lua_name"]);
+		}
 	}
 	else {
 		$("#txt_rawproductname").val(rx["product_name"]);

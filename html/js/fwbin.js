@@ -1,7 +1,5 @@
 let provided_fwbin = null;
 let provided_fwbin_cleaned = null;
-let provided_productname = "";
-let provided_devicename = "";
 let provided_data = {};
 
 const ELRSOPTS_PRODUCTNAME_SIZE = 128;
@@ -55,7 +53,7 @@ function parse_provided_firmware()
 	let options_json = uint8ArrayToString(all_json.subarray(0, ELRSOPTS_OPTIONS_SIZE));
 	let hardware_json = uint8ArrayToString(all_json.subarray(ELRSOPTS_OPTIONS_SIZE));
 	let product_name = uint8ArrayToString(tail.subarray(0, ELRSOPTS_PRODUCTNAME_SIZE));
-	let device_name = uint8ArrayToString(tail.subarray(ELRSOPTS_DEVICENAME_SIZE));
+	let device_name = uint8ArrayToString(tail.subarray(ELRSOPTS_PRODUCTNAME_SIZE, ELRSOPTS_PRODUCTNAME_SIZE + ELRSOPTS_DEVICENAME_SIZE));
 
 	try {
 		parse_all_json(options_json, hardware_json);
@@ -70,6 +68,8 @@ function parse_provided_firmware()
 		catch (e) {
 		}
 		provided_fwbin_cleaned = provided_fwbin.subarray(0, fw_total_len - offset);
+		provided_data["product_name"] = product_name;
+		provided_data["device_name"] = device_name;
 		return true;
 	}
 	catch (e) {

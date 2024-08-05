@@ -47,6 +47,7 @@ if __name__ == '__main__':
         DIR_HTML,
         DIR_HTML + "/js",
         DIR_HTML + "/css",
+        DIR_HTML + "/imgs",
         DIR_PRIVATE,
         DIR_PRIVATE + "/config_backups"
     ]
