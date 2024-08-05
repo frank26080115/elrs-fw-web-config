@@ -24,6 +24,8 @@ Only one build is done at a time no matter how many clients are requesting build
 
 home_dir = os.getcwd()
 app = Flask(__name__)
+script_path = None
+script_modified_time = None
 
 log_file = '/var/www/private/logs/builder.log'
 log_dir = os.path.dirname(log_file)
@@ -91,6 +93,22 @@ def build_expresslrs(env_target, dirpath = ".", clean = True):
         app.logger.error(s)
     return success, text, fwpath
 
+def git_reset_repo(dir_path):
+    cmd = ["git", "reset", "--hard", "HEAD"]
+    try:
+        subprocess.run(cmd, cwd=os.path.abspath(dir_path), capture_output=True, text=True, check=True)
+    except subprocess.CalledProcessError as e:
+        s = f"Command '{e.cmd}' returned non-zero exit status {e.returncode}. Command output: {e.output}"
+        print(s)
+        app.logger.error(s)
+    cmd = ["git", "clean", "-f", "-d"]
+    try:
+        subprocess.run(cmd, cwd=os.path.abspath(dir_path), capture_output=True, text=True, check=True)
+    except subprocess.CalledProcessError as e:
+        s = f"Command '{e.cmd}' returned non-zero exit status {e.returncode}. Command output: {e.output}"
+        print(s)
+        app.logger.error(s)
+
 def git_refresh_gethash(ver):
     git_url = "https://github.com/ExpressLRS/ExpressLRS.git"
     repo_name = "ExpressLRS"
@@ -115,7 +133,7 @@ def git_refresh_gethash(ver):
             print(s)
             app.logger.error(s)
             return None
-        cmd = "git config --global --add safe.directory {repo_fullpath}"
+        cmd = f"git config --global --add safe.directory {repo_fullpath}"
         cmd = cmd.split(' ')
         subprocess.run(cmd, cwd=repo_fullpath, capture_output=True, text=True, check=True)
 
@@ -127,6 +145,7 @@ def git_refresh_gethash(ver):
     if time_difference.days >= 1:
         os.utime(repo_path, None)
         #os.chdir(repo_path)
+        git_reset_repo(repo_fullpath)
         try:
             subprocess.run(["git", "pull"], cwd=repo_fullpath, capture_output=True, text=True, check=True)
         except subprocess.CalledProcessError as e:
@@ -135,6 +154,7 @@ def git_refresh_gethash(ver):
             app.logger.error(s)
 
     if checkout is not None:
+        git_reset_repo(repo_fullpath)
         cmd = ["git", "checkout"]
         cmd.extend(checkout.split(' '))
         try:
@@ -368,17 +388,29 @@ def quit_server():
 
 def monitoring_task():
     global last_activity_time
+    global script_path
+    global script_modified_time
     while True:
+        to_kill = False
         now = datetime.datetime.now()
-        if last_activity_time is not None and build_queue.empty() and all(obj.is_done for obj in build_tasks):
-            time_diff = now - last_activity_time
-            if time_diff.total_seconds() > 60 * 10:
-                app.logger.info("Server Suicide")
-                os.kill(os.getpid(), signal.SIGINT)
+        if build_queue.empty() and all(obj.is_done for obj in build_tasks):
+            if last_activity_time is not None:
+                time_diff = now - last_activity_time
+                if time_diff.total_seconds() > 60 * 10:
+                    to_kill = True
+            else if script_path is not None and script_modified_time is not None:
+                modified_time = os.path.getmtime(script_path)
+                if modified_time > script_modified_time:
+                    to_kill = True
+        if to_kill:
+            app.logger.info("Server Suicide")
+            os.kill(os.getpid(), signal.SIGINT)
         time.sleep(60)
 
 if __name__ == '__main__':
     #global home_dir
+    script_path = os.path.abspath(__file__)
+    script_modified_time = os.path.getmtime(script_path)
     home_dir = os.getcwd()
     monitoring_thread = threading.Thread(target=monitoring_task)
     monitoring_thread.start()

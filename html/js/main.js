@@ -225,8 +225,9 @@ function generateFinalConfig()
 	}
 	}
 	catch (e) {
+		let s = "Error while processing all user inputs: " + e.message + " \r\n&nbsp;" . e.stack;
 		$("#build_error").show();
-		$("#build_error_inner").text("Error while processing all user inputs: " + e.message);
+		$("#build_error_inner").text(s);
 	}
 }
 

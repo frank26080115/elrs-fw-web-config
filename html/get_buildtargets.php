@@ -32,14 +32,20 @@ if (file_exists($cache_file)) {
 else {
     $need_remake = true;
 }
-if ($need_remake) {
-    $dir = 'repos/ExpressLRS/src/targets';
-    $extension = 'ini';
-    $regex = '/\\[env:([a-zA-Z0-9_]+)\\]/';
-    $results = searchFilesForBuildTargets($dir, $extension, $regex, 1);
-    $jsonArray = array("targets" => $results);
-    file_put_contents($cache_file, json_encode($jsonArray));
-    touch($cache_file);
+try {
+	if ($need_remake) {
+		$dir = '/var/www/private/repos/ExpressLRS/src/targets';
+		if (is_dir($dir)) {
+			$extension = 'ini';
+			$regex = '/\\[env:([a-zA-Z0-9_]+)\\]/';
+			$results = searchFilesForBuildTargets($dir, $extension, $regex, 1);
+			$jsonArray = array("targets" => $results);
+			file_put_contents($cache_file, json_encode($jsonArray));
+			touch($cache_file);
+		}
+	}
+}
+catch (Exception $ex) {
 }
 if (file_exists($cache_file)) {
     // Set the content type to application/json
