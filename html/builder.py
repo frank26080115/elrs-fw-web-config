@@ -398,7 +398,7 @@ def monitoring_task():
                 time_diff = now - last_activity_time
                 if time_diff.total_seconds() > 60 * 10:
                     to_kill = True
-            else if script_path is not None and script_modified_time is not None:
+            elif script_path is not None and script_modified_time is not None:
                 modified_time = os.path.getmtime(script_path)
                 if modified_time > script_modified_time:
                     to_kill = True
@@ -409,10 +409,15 @@ def monitoring_task():
 
 if __name__ == '__main__':
     #global home_dir
-    script_path = os.path.abspath(__file__)
-    script_modified_time = os.path.getmtime(script_path)
+    try:
+        script_path = os.path.abspath(__file__)
+        script_modified_time = os.path.getmtime(script_path)
+    except:
+        pass
     home_dir = os.getcwd()
     monitoring_thread = threading.Thread(target=monitoring_task)
     monitoring_thread.start()
     app.logger.info("Server Launched")
+    if script_path is not None:
+        app.logger.info(script_path)
     app.run(host='0.0.0.0', port=5000)
