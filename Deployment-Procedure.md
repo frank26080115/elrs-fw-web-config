@@ -31,3 +31,14 @@ View Apache error log with `sudo tail -f /var/log/apache2/error.log`
 Try calling `sudo -u www-data /var/www/private/piovenv/piovenv/bin/pio platform install espressif32@6.4.0 --with-package framework-arduinoespressif32` to install framework-arduinoespressif32
 
 And try finding `[env_common_esp32]` in the file `src\targets\common.ini` (in the git repo) and adding `platform_packages = framework-arduinoespressif32` to it.
+
+#### Apache log file not readable
+
+Make sure directory `/var/log/apache2` has read permissions for everyone.
+
+Open the `logrotate` configuration file for Apache. This file is typically located at `/etc/logrotate.d/apache2`.
+
+Look for the section that refers to `/var/log/apache2/error.log`.
+
+Add or modify the create directive to set the permissions you want. For example, to set the permissions to 644 (readable by everybody), you can use the following directive:
+`create 644 root adm`

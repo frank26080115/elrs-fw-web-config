@@ -76,35 +76,13 @@ if (file_exists($logFile)) {
 </fieldset>
 <fieldset><legend>Apache Server Error Log Messages</legend>
 	<pre><?php
-		// Path to the Apache server log file
-		$logFile = '/var/log/apache2/error.log'; // Adjust the path as needed
-
-		// Number of lines to display
-		$linesToShow = 10;
-
-		// Display the last few lines of the log file
-		if (file_exists($logFile)) {
-			echo htmlspecialchars(tail($logFile, $linesToShow));
-		} else {
-			echo "Log file not found. Try this: sudo tail -f " . $logFile;
-		}
+		showLogFile('/var/log/apache2/error.log');
 		?>
 	</pre>
 </fieldset>
 <fieldset><legend>Apache Server Access Log Messages</legend>
 	<pre><?php
-		// Path to the Apache server log file
-		$logFile = '/var/log/apache2/access.log'; // Adjust the path as needed
-
-		// Number of lines to display
-		$linesToShow = 10;
-
-		// Display the last few lines of the log file
-		if (file_exists($logFile)) {
-			echo htmlspecialchars(tail($logFile, $linesToShow));
-		} else {
-			echo "Log file not found.";
-		}
+		showLogFile('/var/log/apache2/access.log');
 		?>
 	</pre>
 </fieldset>
@@ -114,17 +92,8 @@ if (file_exists($logFile)) {
 		//echo "\r\n";
 		// Get the path to the PHP error log file
 		$logFile = ini_get('error_log');
-		echo "Log file location: " . $logFile;
-
-		// Number of lines to display
-		$linesToShow = 10;
-
-		// Display the last few lines of the log file
-		if (file_exists($logFile)) {
-			echo htmlspecialchars(tail($logFile, $linesToShow));
-		} else {
-			echo "Log file not found.";
-		}
+		echo "Log file location: " . $logFile . "\r\n";
+		showLogFile($logFile);
 		?>
 	</pre>
 </fieldset>

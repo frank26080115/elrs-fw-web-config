@@ -23,25 +23,36 @@ function isFlaskServerRunning($url) {
 
 // Function to read the last few lines of a file
 function tail($file, $lines) {
-	$f = fopen($file, 'rb');
-	fseek($f, -1, SEEK_END);
-	$pos = ftell($f);
 	$buffer = '';
-	$count = 0;
+	try {
+		$f = fopen($file, 'rb');
+		if ($f)
+		{
+			fseek($f, -1, SEEK_END);
+			$pos = ftell($f);
+			$count = 0;
 
-	while ($pos > 0 && $count < $lines) {
-		$char = fgetc($f);
-		if ($char === "\n") {
-			$count++;
-			if ($count === $lines) {
-				break;
+			while ($pos > 0 && $count < $lines) {
+				$char = fgetc($f);
+				if ($char === "\n") {
+					$count++;
+					if ($count === $lines) {
+						break;
+					}
+				}
+				$buffer = $char . $buffer;
+				fseek($f, --$pos, SEEK_SET);
 			}
-		}
-		$buffer = $char . $buffer;
-		fseek($f, --$pos, SEEK_SET);
-	}
 
-	fclose($f);
+			fclose($f);
+		}
+		else {
+			$buffer = "Unable to read file \"" . $file ."\"";
+		}
+	}
+	catch (Exception $e) {
+		$buffer = "Unable to read file \"" . $file ."\" due to error: " . $e->getMessage();
+	}
 	return $buffer;
 }
 
@@ -68,6 +79,23 @@ function isWithinPublicHtml($filePath) {
 		return true;
 	} else {
 		return false;
+	}
+}
+
+function showLogFile($logFile) {
+	// Number of lines to display
+	$linesToShow = 10;
+
+	// Display the last few lines of the log file
+	if (file_exists($logFile)) {
+		try {
+			echo htmlspecialchars(tail($logFile, $linesToShow));
+		}
+		catch (Exception $e) {
+			echo 'Error exception while trying to read log file "' . $logFile . '": ',  $e->getMessage(), "\n";
+		}
+	} else {
+		echo "Log file not found. Try this: sudo tail -f " . $logFile;
 	}
 }
 
