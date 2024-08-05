@@ -90,7 +90,7 @@ function chk_fwver_onchange(r)
 		$('#buildtargets-list').hide();
 	}
 	else {
-		$('#buildtargets-list').show();
+		//$('#buildtargets-list').show();
 	}
 }
 

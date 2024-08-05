@@ -76,6 +76,8 @@ window.onload = function() {
 
 	$("#uploaded-filename").hide();
 
+	$('#buildtargets-list').hide();
+
 	fill_receiver_list();
 	fill_version_dropdown();
 
