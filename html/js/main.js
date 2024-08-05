@@ -276,13 +276,15 @@ function user_download_fw(compress)
 		fw = pako.gzip(fw);
 	}
 	let extra = getDateTimeTag();
+	let gz = "";
 	if (compress) {
 		extra = "wifi-" + extra;
+		gz = ".gz";
 	}
 	let blob = new Blob([fw], {type: "application/octet-stream"});
 	let link = document.createElement('a');
 	link.href = window.URL.createObjectURL(blob);
-	link.download = 'fw-' + extra + '.bin';
+	link.download = 'fw-' + extra + '.bin' + gz;
 	document.body.appendChild(link);
 	link.click();
 	document.body.removeChild(link);

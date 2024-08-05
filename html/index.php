@@ -143,7 +143,7 @@ window.onload = function() {
 		<p>
 			If you already have a firmware file, you may load it here, and the configuration will be extracted from it. This is completely optional.
 		</p>
-		<p><fieldset><form id="file-form"><input type="file" id="file-input" accept=".bin" onchange="handleFile(event)" style="file-uploader" /></form></fieldset></p>
+		<p><fieldset><form id="file-form"><input type="file" id="file-input" accept=".bin, .gz" onchange="handleFile(event)" style="file-uploader" /></form></fieldset></p>
 		<div id="uploaded-filename"></div>
 		<p><b>Important Note: </b> depending on where this file came from, the configuration wizard may not be able to determine all the required information. Please still go through every single step to make sure everything is correct</p>
 	</div>

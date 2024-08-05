@@ -42,3 +42,5 @@ Look for the section that refers to `/var/log/apache2/error.log`.
 
 Add or modify the create directive to set the permissions you want. For example, to set the permissions to 644 (readable by everybody), you can use the following directive:
 `create 644 root adm`
+
+Also edit `/etc/logrotate.conf`, there's a line with the `create` directive, edit it to say `create 644 root adm`
