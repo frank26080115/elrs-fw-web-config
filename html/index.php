@@ -363,10 +363,10 @@ window.onload = function() {
 				</td><td>Use default settings based on the receiver selection</td></tr>
 				<tr><td><div class="radio-container"><input type="radio" id="pwmpinset-nano3" name="pwmpinset" value="nano3">
 				<label for="pwmpinset-nano3" class="radio-labels">Nano 3x PWM</label></div>
-				</td><td>Nano style receiver modified to output 3x PWM signals</td></tr>
+				</td><td>Nano style receiver modified to output 3x PWM signals (<a href="https://github.com/frank26080115/elrs-fw-web-config/blob/master/docs/nano-pwm-mod/readme.md" target="_blank">click here for more info</a>)</td></tr>
 				<tr><td><div class="radio-container"><input type="radio" id="pwmpinset-nano2" name="pwmpinset" value="nano3">
 				<label for="pwmpinset-nano2" class="radio-labels">Nano Hybrid</label></div>
-				</td><td>Nano style receiver modified to output 2x PWM signals and 1x serial port output</td></tr>
+				</td><td>Nano style receiver modified to output 2x PWM signals and 1x serial port output (<a href="https://github.com/frank26080115/elrs-fw-web-config/blob/master/docs/nano-pwm-mod/readme.md" target="_blank">click here for more info</a>)</td></tr>
 				<tr><td><div class="radio-container"><input type="radio" id="pwmpinset-shrew" name="pwmpinset" value="shrew">
 				<label for="pwmpinset-shrew" class="radio-labels">Shrew ESC</label></div>
 				</td><td>Shrew ESC has dedicated PWM pins.</td></tr>
