@@ -3,13 +3,14 @@ import logging
 from logging.handlers import RotatingFileHandler
 import threading, queue
 import subprocess, os
-import datetime
+import datetime, time
 import re
 import shutil
 import gc
+import utils
 
 repo_dir = "/var/www/private/repos"
-fw_dir = "fw"
+fw_dir = "/var/www/html/fw"
 task_cnt_limit = 100
 pio_path = "/var/www/private/piovenv/piovenv/bin/pio"
 
@@ -41,11 +42,16 @@ app.logger.setLevel(log_level)
 build_queue = queue.Queue()
 build_tasks = {}
 current_task = None
+last_activity_time = None
 
 def build_expresslrs(env_target, dirpath = ".", clean = True):
     app.logger.info(f"Starting build \"{env_target}\" dir \"{dirpath}\"")
     env = os.environ.copy()
     env["PYTHONUNBUFFERED"] = "1"
+    s = utils.git_reset_repo(dirpath)
+    if len(s) > 0:
+        app.logger.error(s)
+
     if clean:
         try:
             command = [pio_path, "run", "--target", "clean", "-e", env_target, "-d", os.path.abspath(dirpath)]
@@ -93,22 +99,6 @@ def build_expresslrs(env_target, dirpath = ".", clean = True):
         app.logger.error(s)
     return success, text, fwpath
 
-def git_reset_repo(dir_path):
-    cmd = ["git", "reset", "--hard", "HEAD"]
-    try:
-        subprocess.run(cmd, cwd=os.path.abspath(dir_path), capture_output=True, text=True, check=True)
-    except subprocess.CalledProcessError as e:
-        s = f"Command '{e.cmd}' returned non-zero exit status {e.returncode}. Command output: {e.output}"
-        print(s)
-        app.logger.error(s)
-    cmd = ["git", "clean", "-f", "-d"]
-    try:
-        subprocess.run(cmd, cwd=os.path.abspath(dir_path), capture_output=True, text=True, check=True)
-    except subprocess.CalledProcessError as e:
-        s = f"Command '{e.cmd}' returned non-zero exit status {e.returncode}. Command output: {e.output}"
-        print(s)
-        app.logger.error(s)
-
 def git_refresh_gethash(ver):
     git_url = "https://github.com/ExpressLRS/ExpressLRS.git"
     repo_name = "ExpressLRS"
@@ -142,10 +132,12 @@ def git_refresh_gethash(ver):
     last_modified_datetime = datetime.datetime.fromtimestamp(last_modified_time)
     current_time = datetime.datetime.now()
     time_difference = current_time - last_modified_datetime
-    if time_difference.days >= 1:
+    if time_difference.days >= 2:
         os.utime(repo_path, None)
         #os.chdir(repo_path)
-        git_reset_repo(repo_fullpath)
+        s = utils.git_reset_repo(repo_path)
+        if len(s) > 0:
+            app.logger.error(s)
         try:
             subprocess.run(["git", "pull"], cwd=repo_fullpath, capture_output=True, text=True, check=True)
         except subprocess.CalledProcessError as e:
@@ -154,7 +146,9 @@ def git_refresh_gethash(ver):
             app.logger.error(s)
 
     if checkout is not None:
-        git_reset_repo(repo_fullpath)
+        s = utils.git_reset_repo(repo_path)
+        if len(s) > 0:
+            app.logger.error(s)
         cmd = ["git", "checkout"]
         cmd.extend(checkout.split(' '))
         try:
@@ -205,11 +199,19 @@ class BuildTask(object):
             self.message += text
             saved_fw_path = os.path.join(fw_dir, self.task_name + ".bin")
 
+            if not success:
+                log_path = os.path.join(os.path.dirname(log_file), self.task_name + ".log")
+                try:
+                    with open(log_path, "w") as f:
+                        f.write(text)
+                except:
+                    pass
+
             if fwpath is not None and os.path.exists(fwpath):
                 if not os.path.exists(fw_dir):
                     os.makedirs(fw_dir)
                 shutil.move(fwpath, saved_fw_path)
-                self.file_path = saved_fw_path
+                self.file_path = os.path.relpath(saved_fw_path, "/var/www/html")
         except Exception as ex:
             s = f"Task Error Exception: {str(ex)}"
             self.message += "\n" + s + "\n"
@@ -382,6 +384,10 @@ def handle_prep():
     response = {"status": "ok"}
     return jsonify(response), 200
 
+@app.route('/test')
+def handle_test():
+    return jsonify({"status": "ok"}), 200
+
 @app.route('/quit')
 def quit_server():
     os._exit(0)
@@ -391,24 +397,32 @@ def monitoring_task():
     global script_path
     global script_modified_time
     while True:
-        to_kill = False
-        now = datetime.datetime.now()
-        if build_queue.empty() and all(obj.is_done for obj in build_tasks):
-            if last_activity_time is not None:
-                time_diff = now - last_activity_time
-                if time_diff.total_seconds() > 60 * 10:
-                    to_kill = True
-            elif script_path is not None and script_modified_time is not None:
-                modified_time = os.path.getmtime(script_path)
-                if modified_time > script_modified_time:
-                    to_kill = True
-        if to_kill:
-            app.logger.info("Server Suicide")
-            os.kill(os.getpid(), signal.SIGINT)
+        try:
+            to_kill = False
+            now = datetime.datetime.now()
+            all_done = True
+            if build_queue.empty() and all(build_tasks[obj].is_done for obj in build_tasks):
+                if last_activity_time is not None:
+                    time_diff = now - last_activity_time
+                    if time_diff.total_seconds() > 60 * 10:
+                        to_kill = True
+                elif script_path is not None and script_modified_time is not None:
+                    modified_time = os.path.getmtime(script_path)
+                    if modified_time > script_modified_time:
+                        to_kill = True
+            if to_kill:
+                app.logger.info("Server Suicide")
+                os.kill(os.getpid(), signal.SIGINT)
+        except Exception as ex:
+            app.logger.error("monitoring thread exception: " + str(ex))
         time.sleep(60)
 
-if __name__ == '__main__':
-    #global home_dir
+def launch_server():
+    global app
+    global home_dir
+    global script_path
+    global script_modified_time
+    global monitoring_thread
     try:
         script_path = os.path.abspath(__file__)
         script_modified_time = os.path.getmtime(script_path)
@@ -420,4 +434,7 @@ if __name__ == '__main__':
     app.logger.info("Server Launched")
     if script_path is not None:
         app.logger.info(script_path)
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='127.0.0.1', port=5000)
+
+if __name__ == '__main__':
+    launch_server()

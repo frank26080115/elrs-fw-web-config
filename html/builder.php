@@ -10,7 +10,7 @@ $data = json_decode(file_get_contents('php://input'), true);
 // Check if the Flask server is running
 if (!isFlaskServerRunning($url)) {
     // Start the Flask server in the background
-    exec('nohup python3 builder.py > /dev/null 2>&1 &');
+    exec('nohup python3 /var/www/private/builder.py > /dev/null 2>&1 &');
     sleep(2); // Give the server some time to start
 }
 

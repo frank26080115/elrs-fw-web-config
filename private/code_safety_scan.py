@@ -1,3 +1,4 @@
+import utils
 import hashlib, secrets
 import sqlite3
 import os, subprocess
@@ -20,11 +21,6 @@ def find_interesting_files(directory):
 
 def hash_directory(directory):
     return hash_files(find_interesting_files(directory))
-
-def get_git_tags(repo_path):
-    result = subprocess.run(['git', 'tag'], cwd=repo_path, capture_output=True, text=True)
-    tags = [tag for tag in result.stdout.split('\n') if tag]
-    return tags
 
 def get_git_name_and_hash(directory, checkout = None):
     dir_name = os.path.basename(directory)
@@ -62,7 +58,7 @@ class ApprovedListDatabase(object):
         self.conn.commit()
 
     def approve_all_tags(self, directory):
-        tags = get_git_tags(directory)
+        tags = utils.get_git_tags(directory)
         print(f"got {len(tags)} tags from {directory}")
         for t in tags:
             try:
@@ -79,7 +75,12 @@ class ApprovedListDatabase(object):
         row = self.cursor.fetchone()
         return row is not None
 
-    def is_approved(self, hexdigest):
+    def is_hash_approved(self, hexdigest):
+        return self.row_exists("approved_hash", hexdigest)
+
+    def is_directory_approved(self, directory, checkout = None):
+        dir_name, commit = get_git_name_and_hash(directory, checkout)
+        hexdigest = hash_directory(directory)
         return self.row_exists("approved_hash", hexdigest)
 
     def entry_exists(self, directory, checkout = None):
