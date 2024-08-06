@@ -3,19 +3,19 @@ include 'utils.php';
 
 try
 {
-$url = 'http://localhost:5000/builder';
+$url = 'http://localhost:5000/';
 // Get the incoming POST data
 $data = json_decode(file_get_contents('php://input'), true);
 
 // Check if the Flask server is running
-if (!isFlaskServerRunning($url)) {
+if (!isFlaskServerRunning($url . "test")) {
     // Start the Flask server in the background
     exec('nohup python3 /var/www/private/builder.py > /dev/null 2>&1 &');
     sleep(2); // Give the server some time to start
 }
 
 // Initialize cURL session
-$ch = curl_init($url);
+$ch = curl_init($url . "builder");
 
 // Set cURL options
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

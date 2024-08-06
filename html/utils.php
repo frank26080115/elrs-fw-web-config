@@ -3,10 +3,10 @@
 function getAbsolutePath($relativePath) {
 	// Get the current working directory
 	$currentDir = getcwd();
-	
+
 	// Combine the current directory with the relative path
 	$absolutePath = realpath($currentDir . DIRECTORY_SEPARATOR . $relativePath);
-	
+
 	return $absolutePath;
 }
 
@@ -14,7 +14,7 @@ function getAbsolutePath($relativePath) {
 function isFlaskServerRunning($url) {
 	$ch = curl_init($url);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch, CURLOPT_TIMEOUT, 2);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 5);
 	curl_exec($ch);
 	$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 	curl_close($ch);

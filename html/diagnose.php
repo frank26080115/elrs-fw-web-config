@@ -19,18 +19,18 @@ echo "Current server time: " . $current_time;
 </fieldset>
 <fieldset><legend>Python Flask Backend</legend>
 <pre><?php
-$url = 'http://localhost:5000/builder';
-if (isFlaskServerRunning($url)) {
+$url = 'http://localhost:5000/';
+if (isFlaskServerRunning($url . "test")) {
 	echo "Server is running.";
 
 	// Initialize cURL session
-	$ch = curl_init($url);
+	$ch = curl_init($url . "builder");
 
 	// Set cURL options
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
 	curl_setopt($ch, CURLOPT_POST, true);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode("{\"action\": \"report\"}"));
+	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(array("action" => "report")));
 
 	// Execute cURL request
 	$response = curl_exec($ch);

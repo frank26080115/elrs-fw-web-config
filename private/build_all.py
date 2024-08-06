@@ -88,3 +88,5 @@ if __name__ == '__main__':
             except Exception as ex:
                 print("Exception when sending request: " + str(ex))
             time.sleep(5)
+    print("all done")
+    time.sleep(10)
