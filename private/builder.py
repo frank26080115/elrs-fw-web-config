@@ -266,7 +266,7 @@ def get_taskname(data):
     return sanitized_filename
 
 def get_fwpath(task_name):
-    p = os.path.join("fw", task_name + ".bin")
+    p = os.path.join(fw_dir, task_name + ".bin")
     return p, os.path.exists(p)
 
 def prune_queue():
