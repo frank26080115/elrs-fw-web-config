@@ -428,6 +428,7 @@ def monitoring_task():
                     if modified_time > script_modified_time:
                         to_kill = True
             if to_kill:
+                import signal
                 app.logger.info("Server Suicide")
                 os.kill(os.getpid(), signal.SIGINT)
         except Exception as ex:
