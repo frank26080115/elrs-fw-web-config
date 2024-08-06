@@ -150,7 +150,7 @@ window.onload = function() {
 	<h3>Version of Code?</h3>
 	<div>
 		<p>
-			Which version of the firmware should be built? (only version 3 and later supported)
+			Which version of the firmware should be built? (only version 3.3.0 and later supported)
 		</p>
 		<p>
 			<div class="radio-group">

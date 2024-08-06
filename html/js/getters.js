@@ -95,14 +95,30 @@ function fill_version_dropdown()
 					return;
 				}
 				for (let tag of tag_list) {
+					if (tag.includes("ALPHA") || tag.includes("alpha")) {
+						continue;
+					}
 					let tag_split = tag.split('.');
 					let major = tag_split[0];
+					let minor = tag_split[1];
 					if (major.startsWith("v") || major.startsWith("V")) {
 						major = major.substring(1);
 					}
 					let major_num = parseInt(major);
 					if (isNaN(major_num) == false) {
-						if (major_num >= 3) {
+						let can_use = false;
+						if (major_num > 3) {
+							can_use = true;
+						}
+						if (major_num == 3) {
+							let minor_num = parseInt(minor);
+							if (isNaN(minor_num) == false) {
+								if (minor_num >= 3) {
+									can_use = true;
+								}
+							}
+						}
+						if (can_use) {
 							version_list.push(tag);
 						}
 					}

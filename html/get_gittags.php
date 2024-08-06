@@ -25,7 +25,7 @@ if (!is_dir($repos)) {
 if (is_dir($directory)) {
 	$ts_path = $directory . ".timestamp";
 	$need_fetch = false;
-	if (is_file($ts_path) {
+	if (is_file($ts_path)) {
 		$lastModified = filemtime($ts_path);
 		$currentTime = time();
 		$timeDifference = $currentTime - $lastModified;

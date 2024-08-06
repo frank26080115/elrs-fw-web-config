@@ -164,23 +164,23 @@ function accordion_onactivate(evt, ui)
 	var oldHeaderId = ui.oldHeader.attr('id') || 'No ID'; // Handle no ID case
 
 	if (newHeaderId !== 'No ID') {
-		console.log("Opened section ID: " + newHeaderId);
+		//console.log("Opened section ID: " + newHeaderId);
 		if (newHeaderId == "sect_save") {
 			generateFinalConfig();
 		}
 	} else {
-		console.log("Opened section has no ID");
+		//console.log("Opened section has no ID");
 	}
 
 	if (oldHeaderId !== 'No ID') {
-		console.log("Closed section ID: " + oldHeaderId);
+		//console.log("Closed section ID: " + oldHeaderId);
 		if (oldHeaderId == "sect_save") {
 			$("#build_done").hide();
 			$("#build_busy").show();
 			$("#build_busy_inner").text("Initializing and making a build request, please wait...");
 		}
 	} else {
-		console.log("Closed section has no ID");
+		//console.log("Closed section has no ID");
 	}
 }
 
