@@ -7,21 +7,6 @@ $directory = $repos . DIRECTORY_SEPARATOR . 'targets';
 
 header('Content-Type: application/json');
 
-if (!is_dir($repos)) {
-	if (mkdir($repos, 0777, true)) {
-		
-	}
-	else {
-		echo json_encode(['error' => 'mkdir failed']);
-		/*
-		use the following commands if permissions are missing
-		sudo chmod -R 755 /var/www/html
-		sudo chown -R www-data:www-data /var/www/html
-		*/
-		return;
-	}
-}
-
 if (is_dir($directory)) {
 	$fileName = 'targets.json';
 	$jsonFilePath = $directory . DIRECTORY_SEPARATOR . $fileName;

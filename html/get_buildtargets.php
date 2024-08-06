@@ -20,7 +20,7 @@ function searchFilesForBuildTargets($dir, $extension, $regex, $groupIndex) {
 }
 
 $need_remake = false;
-$cache_file = "env_targets.json";
+$cache_file = "../private/repos/env_targets.json";
 if (file_exists($cache_file)) {
     $fileModTime = filemtime($cache_file);
     $currentTime = time();
