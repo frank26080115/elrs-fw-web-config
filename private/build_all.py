@@ -3,8 +3,13 @@ import sys
 import json
 import time
 import subprocess
+import getpass
 
 import requests
+
+if getpass.getuser() != 'www-data':
+    print(f"This script is running as user \"{getpass.getuser()}\". Please run the script as \"www-data\".")
+    sys.exit()
 
 class BuildServerConnection(object):
     def __init__(self):
@@ -34,14 +39,14 @@ class BuildServerConnection(object):
     def launch_if_not_availabe(self):
         if not self.check_if_online():
             print("launching server")
-            p = subprocess.Popen(f"sudo -u www-data python3 /var/www/private/builder.py".split(" "))
+            p = subprocess.Popen(f"python3 /var/www/private/builder.py".split(" "))
             time.sleep(2)
 
 if __name__ == '__main__':
     server = BuildServerConnection()
     server.launch_if_not_availabe()
     repo = "/var/www/private/repos/ExpressLRS"
-    utils.git_pull_if_old(repo, force = True)
+    utils.git_fetch_if_old(repo, force = True)
     tags = utils.get_git_tags(repo)
     all_env_targets = None
     for t in tags:

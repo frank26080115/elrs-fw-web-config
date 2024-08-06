@@ -3,13 +3,13 @@ import os, shutil
 import time, datetime
 import re
 
-def get_git_tags(repo_path):
+def get_git_tags(repo_path, min_ver = "3.0.0"):
     result = subprocess.run(['git', 'tag'], cwd=repo_path, capture_output=True, text=True)
     all_tags = [tag for tag in result.stdout.split('\n') if tag]
     relevant_tags = []
     for t in all_tags:
-        if compare_versions(t, "3.3.0") >= 0:
-            relevant_tags.append(t)
+        if compare_versions(t, min_ver) >= 0 and "alpha" not in t.lower() and "rc" not in t.lower():
+            relevant_tags.append(t.strip())
     return sort_versions(relevant_tags)
 
 def get_build_targets(repo_path, checkout = None):
@@ -65,11 +65,16 @@ def git_reset_repo(dir_path, pull = False):
 
 def git_pull_if_old(dir_path, origin = "origin", branch = "master", force = False):
     now = time.time()
-    two_days_ago = now - 60*60*24*2  # 60 seconds * 60 minutes * 24 hours * 2 days
-    mtime = os.path.getmtime(dir_path)
-    if mtime < two_days_ago:
-        os.utime(dir_path, (now, now))
-        force = True
+    two_days_ago = now - 60*60*24*2
+    ts_path = dir_path + ".timestamp"
+    if os.path.exists(ts_path):
+        mtime = os.path.getmtime(ts_path)
+        if mtime < two_days_ago:
+            os.utime(dir_path, (now, now))
+            force = True
+    else:
+        with open(ts_path, "a") as f:
+            pass
 
     s = ""
     if force:
@@ -78,6 +83,29 @@ def git_pull_if_old(dir_path, origin = "origin", branch = "master", force = Fals
         if origin is not None and len(origin) > 0 and branch is not None and len(branch) > 0:
             cmd.append(origin)
             cmd.append(branch)
+        try:
+            subprocess.run(cmd, cwd=os.path.abspath(dir_path), capture_output=True, text=True, check=True)
+        except subprocess.CalledProcessError as e:
+            s += f"\nCommand '{e.cmd}' returned non-zero exit status {e.returncode}. Command output: {e.output}"
+            print(s)
+    return s.strip()
+
+def git_fetch_if_old(dir_path, force = False):
+    now = time.time()
+    two_days_ago = now - 60*60*24*2
+    ts_path = dir_path + ".timestamp"
+    if os.path.exists(ts_path):
+        mtime = os.path.getmtime(ts_path)
+        if mtime < two_days_ago:
+            os.utime(dir_path, (now, now))
+            force = True
+    else:
+        with open(ts_path, "a") as f:
+            pass
+
+    s = ""
+    if force:
+        cmd = ["git", "fetch"]
         try:
             subprocess.run(cmd, cwd=os.path.abspath(dir_path), capture_output=True, text=True, check=True)
         except subprocess.CalledProcessError as e:
@@ -99,6 +127,7 @@ def compare_versions(version1, version2):
         return 0
 
 def version_key(version):
+    version = version.strip()
     # Remove leading 'v'
     if version.startswith('v'):
         version = version[1:]

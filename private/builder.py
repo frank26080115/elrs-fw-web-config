@@ -3,11 +3,16 @@ import logging
 from logging.handlers import RotatingFileHandler
 import threading, queue
 import subprocess, os
+import getpass
 import datetime, time
 import re
 import shutil
 import gc
 import utils
+
+if getpass.getuser() != 'www-data':
+    print(f"This script is running as user \"{getpass.getuser()}\". Please run the script as \"www-data\".")
+    sys.exit()
 
 repo_dir = "/var/www/private/repos"
 fw_dir = "/var/www/html/fw"
@@ -128,18 +133,30 @@ def git_refresh_gethash(ver):
         subprocess.run(cmd, cwd=repo_fullpath, capture_output=True, text=True, check=True)
 
     #original_directory = os.getcwd()
-    last_modified_time = os.path.getmtime(repo_path)
-    last_modified_datetime = datetime.datetime.fromtimestamp(last_modified_time)
-    current_time = datetime.datetime.now()
-    time_difference = current_time - last_modified_datetime
-    if time_difference.days >= 2:
-        os.utime(repo_path, None)
+    ts_path = repo_path + ".timestamp"
+    need_fetch = False
+    if not os.path.exists(ts_path):
+        with open(ts_path, 'a'):
+            pass
+    else:
+        last_modified_time = os.path.getmtime(ts_path)
+        last_modified_datetime = datetime.datetime.fromtimestamp(last_modified_time)
+        current_time = datetime.datetime.now()
+        time_difference = current_time - last_modified_datetime
+        if time_difference.total_seconds() >= 24 * 60 * 60:
+            need_fetch = True
+    if need_fetch:
+        os.utime(ts_path, None)
         #os.chdir(repo_path)
         s = utils.git_reset_repo(repo_path)
         if len(s) > 0:
             app.logger.error(s)
         try:
-            subprocess.run(["git", "pull"], cwd=repo_fullpath, capture_output=True, text=True, check=True)
+            if ver == "shrew":
+                cmd = ["git", "pull"]
+            else:
+                cmd = ["git", "fetch"]
+            subprocess.run(cmd, cwd=repo_fullpath, capture_output=True, text=True, check=True)
         except subprocess.CalledProcessError as e:
             s = f"Command '{e.cmd}' returned non-zero exit status {e.returncode}. Command output: {e.output}"
             print(s)

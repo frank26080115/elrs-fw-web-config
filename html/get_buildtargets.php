@@ -26,7 +26,7 @@ if (file_exists($cache_file)) {
     $currentTime = time();
     $differenceInDays = ($currentTime - $fileModTime) / (60 * 60 * 24);
     if ($differenceInDays > 3) {
-        $need_remake = true;
+        //$need_remake = true;
     }
 }
 else {

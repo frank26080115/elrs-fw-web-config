@@ -127,6 +127,7 @@ function fill_version_dropdown()
 	});
 }
 
+// this function is effectively useless
 function get_all_build_targets()
 {
 	$.ajax({
