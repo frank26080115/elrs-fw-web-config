@@ -31,6 +31,7 @@ def get_build_targets(repo_path, checkout = None):
     return matches
 
 def git_del_hardware_dir(dir_path):
+    chown_all_repos()
     hw_path = os.path.join(os.path.abspath(dir_path), "src", "hardware")
     hw_json = os.path.join(hw_path, "targets.json")
     if os.path.exists(hw_path) and not os.path.exists(hw_json):
@@ -40,6 +41,7 @@ def git_del_hardware_dir(dir_path):
             pass
 
 def git_reset_repo(dir_path, pull = False):
+    chown_all_repos()
     s = ""
     cmd = ["git", "reset", "--hard", "HEAD"]
     try:
@@ -61,6 +63,7 @@ def git_reset_repo(dir_path, pull = False):
         except subprocess.CalledProcessError as e:
             s += f"\nCommand '{e.cmd}' returned non-zero exit status {e.returncode}. Command output: {e.output}"
             print(s)
+        chown_all_repos()
     return s.strip()
 
 def git_pull_if_old(dir_path, origin = "origin", branch = "master", force = False):
@@ -88,6 +91,7 @@ def git_pull_if_old(dir_path, origin = "origin", branch = "master", force = Fals
         except subprocess.CalledProcessError as e:
             s += f"\nCommand '{e.cmd}' returned non-zero exit status {e.returncode}. Command output: {e.output}"
             print(s)
+        chown_all_repos()
     return s.strip()
 
 def git_fetch_if_old(dir_path, force = False):
@@ -111,7 +115,25 @@ def git_fetch_if_old(dir_path, force = False):
         except subprocess.CalledProcessError as e:
             s += f"\nCommand '{e.cmd}' returned non-zero exit status {e.returncode}. Command output: {e.output}"
             print(s)
+        chown_all_repos()
     return s.strip()
+
+def chown_all_repos():
+    owner = "www-data:www-data"
+    list_of_dirs = [
+        "/var/www/private/repos",
+        "/var/www/private/logs",
+        "/var/www/html/fw",
+    ]
+    for i in list_of_dirs:
+        try:
+            subprocess.run(["sudo", "chown", "-R", owner, i])
+        except:
+            pass
+        try:
+            subprocess.run(["chown", "-R", owner, i])
+        except:
+            pass
 
 def sort_versions(versions):
     return sorted(versions, key=version_key, reverse=True)

@@ -131,6 +131,7 @@ def git_refresh_gethash(ver):
             print(s)
             app.logger.error(s)
             return None
+        utils.chown_all_repos()
         cmd = f"git config --global --add safe.directory {repo_fullpath}"
         cmd = cmd.split(' ')
         subprocess.run(cmd, cwd=repo_fullpath, capture_output=True, text=True, check=True)
@@ -164,6 +165,7 @@ def git_refresh_gethash(ver):
             s = f"Command '{e.cmd}' returned non-zero exit status {e.returncode}. Command output: {e.output}"
             print(s)
             app.logger.error(s)
+        utils.chown_all_repos()
 
     if checkout is not None:
         s = utils.git_reset_repo(repo_path)
@@ -177,6 +179,7 @@ def git_refresh_gethash(ver):
             s = f"Command '{e.cmd}' returned non-zero exit status {e.returncode}. Command output: {e.output}"
             print(s)
             app.logger.error(s)
+        utils.chown_all_repos()
 
     txt = ver
     try:
