@@ -8,10 +8,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" onerror="handleLoadError()"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" onerror="handleLoadError()"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.4/pako.min.js" onerror="handleLoadError()"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/ui-darkness/jquery-ui.css" onerror="handleLoadError()">
-
-<script src="https://unpkg.com/esptool-js/bundle.js" type="module" onerror="handleLoadError()"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.4/pako.min.js" onerror="handleLoadError()"></script>
 
 <link rel="icon" type="image/x-icon" href="/imgs/favicon.ico">
 
@@ -23,6 +21,109 @@
 <script src="js/events.js" onerror="handleLoadError()"></script>
 <script src="js/fwbin.js" onerror="handleLoadError()"></script>
 <script src="js/shrew.js" onerror="handleLoadError()"></script>
+
+<!--<script src="https://unpkg.com/esptool-js/lib/index.js" type="module" onerror="handleLoadError()"></script>-->
+<!--<script src="https://unpkg.com/esptool-js/bundle.js" type="module" onerror="handleLoadError()"></script>-->
+<!--<script src="js/esptool.js" type="module" onerror="handleLoadError()"></script>-->
+<script type="module">
+import { Transport } from './js/esptool/webserial.js'
+import { ESPLoader } from './js/esptool/ESPLoader.js'
+import { ESPError } from './js/esptool/error.js'
+
+document.getElementById("btn_flasherase").onclick =
+function btn_flasherase_onclick()
+{
+	const portFilters = [];
+	navigator.serial.requestPort({ filters: portFilters })
+		.then(port => {
+			let transport = new Transport(port);
+			$("#build_busy").show();
+			$("#build_busy_inner").text("serial port selected, establishing connection, please wait...");
+			let esptool = new ESPLoader(transport, 115200); // note: there's a timeout bug, but if the baud specified matches ROM baud, which is 115200, then the change_baud function that causes the timeout problem is skipped
+			esptool.main_fn().then(chip => {
+				$("#build_busy").show();
+				$("#build_busy_inner").text("chip \"" + chip + "\" connected, erasing flash, please wait...");
+				esptool.erase_flash()
+					.then(() => {
+						console.log('Flash erased successfully');
+						alert("Flash Erased Successfully");
+						$("#build_busy").hide();
+						port.close();
+					})
+					.catch((error) => {
+						console.error('Error occurred while erasing the flash: ', error);
+						alert("Error occurred while erasing the flash: " + error);
+						$("#build_busy").hide();
+						port.close();
+					});
+			}).catch(error => {
+				console.error('Error occurred while communicating: ', error);
+				alert("Error occurred while communicating: " + error);
+				$("#build_busy").hide();
+				port.close();
+			});
+		})
+		.catch(error => {
+			console.error('Error occurred while requesting/opening the port: ', error);
+		});
+};
+
+document.getElementById("btn_flash").onclick =
+function btn_flash_onclick()
+{
+	let head = built_fw;
+	let tail = generateBinaryFromTextboxes();
+	if (head == null) {
+		alert("ERROR: the firmware has not been transfered from the server");
+		return;
+	}
+	if (tail == null) {
+		alert("ERROR: unable to generate firmware configuration");
+		return;
+	}
+	let fw = concatenateUint8Arrays(head, tail);
+
+	const portFilters = [];
+	navigator.serial.requestPort({ filters: portFilters })
+		.then(port => {
+			let transport = new Transport(port);
+			$("#build_busy").show();
+			$("#build_busy_inner").text("serial port selected, establishing connection, please wait...");
+			let esptool = new ESPLoader(transport, 115200); // note: there's a timeout bug, but if the baud specified matches ROM baud, which is 115200, then the change_baud function that causes the timeout problem is skipped
+			esptool.main_fn().then(chip => {
+				$("#build_busy").show();
+				$("#build_busy_inner").text("chip \"" + chip + "\" connected, flashing firmware, please wait...");
+				let fileArray = [{data: fw, address:0x0000}]
+				esptool.write_flash({fileArray,
+					flash_size: 'keep',
+					reportProgress(fileIndex, written, total) {
+						$("#build_busy_inner").text("flashing firmware, please wait... (" + Math.round(written * 100 / total) + "% : " + written + " / " + total + ")");
+					}
+				})
+					.then(() => {
+						console.log('Firmware Flashed successfully');
+						alert("Firmware Flashed Successfully");
+						$("#build_busy").hide();
+						port.close();
+					})
+					.catch((error) => {
+						console.error('Error occurred while flashing the firmware: ', error);
+						alert("Error occurred while flashing the firmware: " + error);
+						$("#build_busy").hide();
+						port.close();
+					});
+			}).catch(error => {
+				console.error('Error occurred while communicating: ', error);
+				alert("Error occurred while communicating: " + error);
+				$("#build_busy").hide();
+				port.close();
+			});
+		})
+		.catch(error => {
+			console.error('Error occurred while requesting/opening the port: ', error);
+		});
+};
+</script>
 
 <meta property="og:title" content="ELRS Firmware Configuration Tool" />
 <meta property="og:description" content="Build and preconfigure a customized ELRS firmware" />
@@ -411,7 +512,7 @@ window.onload = function() {
 	</div>
 	<h3 id="sect_save">Finish + Save + Flash</h3>
 	<div>
-		<div id="build_done"><input type="button" id="btn_save_offline" onclick="btn_saveoffline_onclick()" value="Save for Offline" /><input type="button" id="btn_save_wifi" onclick="btn_savewifi_onclick()" value="Save for Wi-Fi Install" /><input type="button" id="btn_flasherase" onclick="btn_flasherase_onclick()" value="Erase Flash" /><input type="button" id="btn_flash" onclick="btn_flash_onclick()" value="Flash Firmware" /></div>
+		<div id="build_done"><input type="button" id="btn_save_offline" onclick="btn_saveoffline_onclick()" value="Save for Offline" /><input type="button" id="btn_save_wifi" onclick="btn_savewifi_onclick()" value="Save for Wi-Fi Install" /><input type="button" id="btn_flasherase" value="Erase Flash" /><input type="button" id="btn_flash" value="Flash Firmware" /></div>
 		<div id="build_message"><fieldset><legend class="ui-fieldset-legend">Build Message</legend><textarea id="txt_buildmessage" name="txt_buildmessage" class="build-message" readonly ></textarea><br /><input type="button" onclick="build_retry()" value="Retry?" />
 		</fieldset></div>
 		<div id="build_error"><fieldset><legend class="ui-fieldset-legend">Error</legend><div id="build_error_inner">&nbsp;</div><br /><input type="button" onclick="build_retry()" value="Retry?" />

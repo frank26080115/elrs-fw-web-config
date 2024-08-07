@@ -46,6 +46,8 @@ if __name__ == '__main__':
     remote_dirs = [
         DIR_HTML,
         DIR_HTML + "/js",
+        DIR_HTML + "/js/esptool",
+        DIR_HTML + "/js/esptool/targets",
         DIR_HTML + "/css",
         DIR_HTML + "/imgs",
         DIR_PRIVATE,

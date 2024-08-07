@@ -10,12 +10,12 @@ import shutil
 import gc
 import utils
 
-if getpass.getuser() != 'www-data':
-    s = f"This script is running as user \"{getpass.getuser()}\". Please run the script as \"www-data\"."
-    print(s)
-    #with open("/var/www/private/logs/builder-users.log", "a") as f:
-    #    f.write(str(datetime.datetime.now()) + ": " + s + "\n")
-    sys.exit()
+#if getpass.getuser() != 'www-data':
+#    s = f"This script is running as user \"{getpass.getuser()}\". Please run the script as \"www-data\"."
+#    print(s)
+#    with open("/var/www/private/logs/builder-users.log", "a") as f:
+#        f.write(str(datetime.datetime.now()) + ": " + s + "\n")
+#    sys.exit()
 
 repo_dir = "/var/www/private/repos"
 fw_dir = "/var/www/html/fw"
@@ -435,6 +435,7 @@ def monitoring_task():
                 import signal
                 app.logger.info("Server Suicide")
                 os.kill(os.getpid(), signal.SIGINT)
+                sys.exit()
         except Exception as ex:
             app.logger.error("monitoring thread exception: " + str(ex))
         time.sleep(60)
