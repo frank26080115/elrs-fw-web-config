@@ -268,7 +268,7 @@ window.onload = function() {
 				</td></tr>
 				<tr><td><div class="radio-container"><input type="radio" id="rxdatarate-fixed" name="rxdatarate" value="fixed" onchange="chk_rxdatarate_onchange(this)" />
 				<label for="rxdatarate-fixed" class="radio-labels">Fixed</label></div>
-				</td><td>Select the only data-rate that can be used:<br /><div id="div_datarate">&nbsp;</div><br /><b>Important Note: </b> The ability to lock the data-rate is only available in the combat robotics firmware. This allows the receiver to reconnect to a transmitter faster after an unexpected shutdown.<br /><b>Important Note: </b> You must set the correct data rate on your transmitter</td></tr>
+				</td><td>Select the only data-rate that can be used:<br /><div id="div_datarate">&nbsp;</div><br /><b>Important Note: </b> The ability to lock the data-rate is only available in the combat robotics firmware. This allows the receiver to reconnect to a transmitter faster after an unexpected shutdown.<br /><b>Important Note: </b> You must set the correct data rate on your transmitter<br /><b>Important Note: </b> The ones labelled "8ch" are recommended for robotics applications, the other ones don't send all the channels.</td></tr>
 				</table>
 			</div>
 		</fieldset></p>

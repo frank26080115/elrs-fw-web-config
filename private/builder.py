@@ -11,7 +11,10 @@ import gc
 import utils
 
 if getpass.getuser() != 'www-data':
-    print(f"This script is running as user \"{getpass.getuser()}\". Please run the script as \"www-data\".")
+    s = f"This script is running as user \"{getpass.getuser()}\". Please run the script as \"www-data\"."
+    print(s)
+    #with open("/var/www/private/logs/builder-users.log", "a") as f:
+    #    f.write(str(datetime.datetime.now()) + ": " + s + "\n")
     sys.exit()
 
 repo_dir = "/var/www/private/repos"
@@ -413,6 +416,7 @@ def monitoring_task():
     global last_activity_time
     global script_path
     global script_modified_time
+    time.sleep(60)
     while True:
         try:
             to_kill = False
