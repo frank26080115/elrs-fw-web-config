@@ -185,6 +185,9 @@ function generateFinalConfig()
 
 	if (fw_ver == "provided")
 	{
+		last_build_ver = null;
+		last_build_fw = null;
+		serialbtns_disable();
 		if (provided_fwbin_cleaned == null) {
 			$("#build_error").show();
 			$("#build_busy").hide();
@@ -202,6 +205,8 @@ function generateFinalConfig()
 		}
 		return;
 	}
+
+	serialbtns_enable();
 
 	if (rx == null) {
 		$("#build_error").show();

@@ -9,7 +9,12 @@ class Transport {
 
     get_info(){
         const info = this.device.getInfo();
+        try {
         return "WebSerial VendorID 0x"+info.usbVendorId.toString(16)+ " ProductID 0x"+info.usbProductId.toString(16);
+        }
+        catch (e) {
+            return "WebSerial " + info;
+        }
     }
 
     slip_writer(data) {

@@ -224,3 +224,13 @@ function btn_savewifi_onclick()
 	}
 	user_download_fw(compress);
 }
+
+function serialbtns_enable() {
+	$('#btn_flash').prop('disabled', false);
+	$('#btn_flasherase').prop('disabled', false);
+}
+
+function serialbtns_disable() {
+	$('#btn_flash').prop('disabled', true);
+	$('#btn_flasherase').prop('disabled', true);
+}
