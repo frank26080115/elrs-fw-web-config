@@ -112,6 +112,7 @@ function generateFinalConfig()
 		options["permanent-binding"] = $('#chk_preventbinding').is(':checked');
 		if (rx_highlevel == "shrew") {
 			options["shrew"] = $("#drop_shrewvariant").val();
+			options["shrew-dshot"] = $('#chk_preferDshot').is(':checked');
 		}
 		else {
 			options["shrew"] = 0;
@@ -119,11 +120,15 @@ function generateFinalConfig()
 	}
 	$("#txt_rawconfig").val(prettifyJSON(options));
 
+	let hw_file = null;
 	let hw = {};
 	if (rx != null) {
 		hw_file = rx["layout_file"];
 		if (hw_file in layout_list) {
 			hw = layout_list[hw_file];
+		}
+		else if (hw_file == null) {
+			$("#txt_rawhardware").val("");
 		}
 		else {
 			fetch_layoutfile(hw_file);
@@ -140,12 +145,6 @@ function generateFinalConfig()
 	if (rx_highlevel == "retain") {
 		hw = mergeJSONObjects(provided_data["hardware"], hw);
 		fw_ver = "provided";
-	}
-
-	if ($('#chk_disablebindbutton').is(':checked')) {
-		if (hw.hasOwnProperty("button")) {
-			delete hw["button"];
-		}
 	}
 
 	let pwmpinset = $('input[name="pwmpinset"]:checked').val();
@@ -178,7 +177,14 @@ function generateFinalConfig()
 		hw["pwm_outputs"] = shrew_hw["pwm_outputs"];
 	}
 	else if (pwmpinset == "custom") {
-		hw["pwm_outputs"] = bytesFromText($('#txt_pwmlist').val());
+		hw["pwm_outputs"] = getPwmOutputsFromTextbox(hw, $('#txt_pwmlist').val());
+	}
+	hw = validatePwmOutputs(hw);
+
+	if ($('#chk_disablebindbutton').is(':checked')) {
+		if (hw.hasOwnProperty("button")) {
+			delete hw["button"];
+		}
 	}
 
 	$("#txt_rawhardware").val(prettifyJSON(hw));

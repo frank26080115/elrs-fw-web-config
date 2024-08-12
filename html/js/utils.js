@@ -448,3 +448,54 @@ function hexToUint8Array(hexString) {
 
 	return byteArray;
 }
+
+function getPwmOutputsFromTextbox(hw, str) {
+	let parts = str.split(/[,;]\s*/);
+	for (let i = 0; i < parts.length; i++) {
+		let j = parts[i].toLowerCase().trim();
+		let k = parseInt(j);
+		if (j == "rx" && hw.hasOwnProperty("serial_rx")) {
+			k = hw["serial_rx"];
+		}
+		else if (j == "tx" && hw.hasOwnProperty("serial_tx")) {
+			k = hw["serial_tx"];
+		}
+		else if ((j == "btn" || j == "button") && hw.hasOwnProperty("button")) {
+			k = hw["button"];
+		}
+		if (!isNaN(k)) {
+			if (!hw.hasOwnProperty("pwm_outputs")) {
+				hw["pwm_outputs"] = [];
+			}
+			if (!hw["pwm_outputs"].includes(k)) {
+				hw["pwm_outputs"].push(k);
+			}
+		}
+	}
+	return hw["pwm_outputs"];
+}
+
+function validatePwmOutputs(hw) {
+	if (hw.hasOwnProperty("pwm_outputs"))
+	{
+		for (let i = 0; i < hw["pwm_outputs"].length; i++) {
+			let k = hw["pwm_outputs"][i];
+			if (hw.hasOwnProperty("serial_rx")) {
+				if (hw["serial_rx"] == k) {
+					delete hw["serial_rx"];
+				}
+			}
+			if (hw.hasOwnProperty("serial_tx")) {
+				if (hw["serial_tx"] == k) {
+					delete hw["serial_tx"];
+				}
+			}
+			if (hw.hasOwnProperty("button")) {
+				if (hw["button"] == k) {
+					delete hw["button"];
+				}
+			}
+		}
+	}
+	return hw;
+}

@@ -199,8 +199,8 @@ window.onload = function() {
 					<label for="rxhighlevel-shrew" class="radio-labels">Shrew ESC</label></div>
 					</td><td>Shrew ESC, choose between:<br />
 						<select id="drop_shrewvariant" name="drop_shrewvariant">
-							<option value="1">3.7A - DRV8231</option>
-							<option value="2">21A - DRV8244</option>
+							<option value="1">Lite - 3.7A</option>
+							<option value="2">Pro - 21A</option>
 						</select>
 					</td></tr>
 					<tr><td><div class="radio-container"><input type="radio" id="rxhighlevel-retain" name="rxhighlevel" value="retain" onchange="chk_rxhighlevel_onchange(this)" disabled />
@@ -371,7 +371,7 @@ window.onload = function() {
 				</td><td>Nano style receiver modified to output 2x PWM signals and 1x serial port output (<a href="https://github.com/frank26080115/elrs-fw-web-config/blob/master/docs/nano-pwm-mod/readme.md" target="_blank">click here for more info</a>)</td></tr>
 				<tr><td><div class="radio-container"><input type="radio" id="pwmpinset-shrew" name="pwmpinset" value="shrew">
 				<label for="pwmpinset-shrew" class="radio-labels">Shrew ESC</label></div>
-				</td><td>Shrew ESC has dedicated PWM pins.</td></tr>
+				</td><td>Shrew ESC has dedicated PWM pins.<br /><input input="checkbox" id="chk_preferDshot" name="chk_preferDshot" /><label for="chk_preferDshot">Use DSHOT by default</label>, which is safer</td></tr>
 				<tr><td><div class="radio-container"><input type="radio" id="pwmpinset-custom" name="pwmpinset" value="custom">
 				<label for="pwmpinset-custom" class="radio-labels">Custom</label></div></td><td>Enter the list of PWM pins below:<br /><input type="text" id="txt_pwmlist" name="txt_pwmlist"></td></tr>
 				</table>

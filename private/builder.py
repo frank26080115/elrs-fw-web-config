@@ -68,6 +68,10 @@ def build_expresslrs(env_target, dirpath = ".", clean = True):
         except Exception as ex:
             app.logger.error("Build clean caused exception: " + str(e))
             pass
+
+    if "_900_" in env_target:
+        utils.set_regulatory_domain(dirpath)
+
     command = [pio_path, "run", "-e", env_target, "-d", os.path.abspath(dirpath)]
     process = None
     stdout_output = ""
@@ -283,7 +287,7 @@ def get_taskname(data):
         p = os.path.join(home_dir, os.path.join("repos", "shrew"))
         h = git_refresh_gethash(data["version"])
         v += h[0:8]
-    x = v + "_" + data["firmware"]
+    x = v.strip() + "_" + data["firmware"].strip()
     invalid_chars = r'[<>:"/\\|?*\x00-\x1F.]'
     sanitized_filename = re.sub(invalid_chars, '_', x)
     return sanitized_filename
@@ -344,6 +348,15 @@ def handle_json():
     if data:
         try:
             if data["action"] == "build":
+
+                if data["version"] != "shrew":
+                    if utils.compare_versions(data["version"], "3.3.0") < 0:
+                        response = {"error": "unsupported version, must be v3.3.0 or later"}
+                        return jsonify(response), 200
+                if "_TX_" in data["firmware"]:
+                    response = {"error": "unsupported, cannot build for transmitters"}
+                    return jsonify(response), 200
+
                 task_name = get_taskname(data)
                 if task_name in build_tasks:
                     task = build_tasks[task_name]

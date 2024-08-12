@@ -135,6 +135,17 @@ def chown_all_repos():
         except:
             pass
 
+def set_regulatory_domain(dir_path):
+    fpath = os.path.join(dir_path, "user_defines.txt")
+    with open(fpath, 'r') as f:
+        contents = f.read()
+    needle = "\n-DRegulatory_Domain_"
+    if needle in contents:
+        return
+    contents += needle + "FCC_915\n"
+    with open(fpath, 'w') as f:
+        f.write(contents)
+
 def sort_versions(versions):
     return sorted(versions, key=version_key, reverse=True)
 

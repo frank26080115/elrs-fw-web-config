@@ -70,6 +70,7 @@ function chk_fwver_onchange(r)
 	if ($('#fwver-combatrobot').is(':checked')) {
 		$('#rxdatarate-fixed').prop('disabled', false);
 		$('#chk_preventbinding').prop('disabled', false);
+		$('#chk_preferDshot').prop('disabled', false);
 		chk_rxdatarate_onchange();
 	}
 	else {
@@ -83,8 +84,9 @@ function chk_fwver_onchange(r)
 		if ($('#pwmpinset-shrew').is(':checked')) {
 			$('#pwmpinset-default').prop('checked', true);
 			//$('#pwmpinset-default').trigger('change');
+			$('#pwmpinset-shrew').prop('checked', false);
 		}
-		$('#pwmpinset-shrew').prop('checked', false);
+		$('#chk_preferDshot').prop('disabled', true);
 	}
 	if ($('#fwver-provided').is(':checked')) {
 		$('#buildtargets-list').hide();
@@ -143,6 +145,16 @@ function chk_rxhighlevel_onchange(r)
 	if ($('#rxhighlevel-nano').is(':checked')) {
 		//$("#regulatory_domain").hide();
 		$('#drop_domain').prop('disabled', true);
+	}
+}
+
+function chk_pwmpinset_onchange(r)
+{
+	if ($('#pwmpinset-shrew').is(':checked')) {
+		//$('#chk_preferDshot').prop('disabled', false);
+	}
+	else {
+		//$('#chk_preferDshot').prop('disabled', true);
 	}
 }
 
