@@ -371,9 +371,9 @@ window.onload = function() {
 				</td><td>Nano style receiver modified to output 2x PWM signals and 1x serial port output (<a href="https://github.com/frank26080115/elrs-fw-web-config/blob/master/docs/nano-pwm-mod/readme.md" target="_blank">click here for more info</a>)</td></tr>
 				<tr><td><div class="radio-container"><input type="radio" id="pwmpinset-shrew" name="pwmpinset" value="shrew">
 				<label for="pwmpinset-shrew" class="radio-labels">Shrew ESC</label></div>
-				</td><td>Shrew ESC has dedicated PWM pins.<br /><input input="checkbox" id="chk_preferDshot" name="chk_preferDshot" /><label for="chk_preferDshot">Use DSHOT by default</label>, which is safer</td></tr>
+				</td><td>Shrew ESC has dedicated PWM pins.<br /><input type="checkbox" id="chk_preferDshot" name="chk_preferDshot" /><label for="chk_preferDshot">Use DSHOT by default</label>, which is safer</td></tr>
 				<tr><td><div class="radio-container"><input type="radio" id="pwmpinset-custom" name="pwmpinset" value="custom">
-				<label for="pwmpinset-custom" class="radio-labels">Custom</label></div></td><td>Enter the list of PWM pins below:<br /><input type="text" id="txt_pwmlist" name="txt_pwmlist"></td></tr>
+				<label for="pwmpinset-custom" class="radio-labels">Custom</label></div></td><td>Enter the list of PWM pins below:<br /><input type="text" id="txt_pwmlist" name="txt_pwmlist"><br /><b>Note: </b> when a pin is in this list and is also used by another function, such as "serial_tx", the tool will automatically resolve the conflict by removing the conflicting item (example: remove "serial_tx").<br /><b>Note: </b> for the RadioMaster RTD-4/RP4TD, the two extra pins on the side are pins 5 and 18.</td></tr>
 				</table>
 			</div>
 		</p>
